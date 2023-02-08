@@ -1,0 +1,44 @@
+{"frames": {
+
+"bullet.png":
+{
+	"frame": {"x":0,"y":0,"w":50,"h":12},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":50,"h":12},
+	"sourceSize": {"w":50,"h":12}
+},
+"enemy.png":
+{
+	"frame": {"x":50,"y":0,"w":200,"h":245},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":245},
+	"sourceSize": {"w":200,"h":245}
+},
+"farmer-v3.png":
+{
+	"frame": {"x":250,"y":0,"w":392,"h":393},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":392,"h":393},
+	"sourceSize": {"w":392,"h":393}
+},
+"field-bg.png":
+{
+	"frame": {"x":642,"y":0,"w":1280,"h":720},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":1280,"h":720},
+	"sourceSize": {"w":1280,"h":720}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "mvp-spritesheet.png",
+	"format": "RGBA8888",
+	"size": {"w":1922,"h":720},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:baff0de01da1e61ffae6a701536cc3ff:955ad471d773f2ae033e2b4b65f2c236:515e2f46e76439a7bca55ce445b06d75$"
+}
+}
