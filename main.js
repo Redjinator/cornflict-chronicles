@@ -41,9 +41,6 @@ console.log(width, height);
 let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
 
 
-
-//========================================================================================
-
 /* #region loader */
 // ----------------------
 loader.onProgress.add(loadProgressHandler);
@@ -56,18 +53,22 @@ loader
 /* #region Setup */
 function setup() {
 
+  /* #region Create Containers & Sprites */
+
   // Set score to 0
   score = 0;
 
+  // Create the game scene
   gameScene = new Container();
 
-  /* #region Create Sprites */
   // Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
   // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
-  farmer = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 400, 100);
+  farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
+  enemy   = setSpriteProperties(new Sprite(id["enemy-small.png"]), 0.5, 0.5, 400, 100);
+  bullet  = setSpriteProperties(new Sprite(id["bullet.png"]), 0.5, 0.5, 0, 0);
 
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
@@ -106,15 +107,25 @@ function setup() {
   gameScene.addChild(scoreboard);
   /* #endregion */
 
-
+  /* #region Create Mouse Target */
   const mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
   mouseTarget.position.set(app.screen.width / 2, app.screen.height / 2);
   app.stage.interactive = true;
 
   app.stage.on('pointermove', (event) => {
     mouseTarget.position.set(event.data.global.x, event.data.global.y);
+    farmer.rotation = Math.atan2(mouseTarget.y - farmer.y, mouseTarget.x - farmer.x);
   });
-  
+  /* #endregion */
+
+  app.stage.on('pointerdown', (event) => {
+    bullet.x = farmer.x;
+    bullet.y = farmer.y;
+    bullet.rotation = farmer.rotation;
+    bullet.vx = Math.cos(farmer.rotation) * 10;
+    bullet.vy = Math.sin(farmer.rotation) * 10;
+    gameScene.addChild(bullet);
+  });
 
   /* #region game state and ticker */
   state = play;
