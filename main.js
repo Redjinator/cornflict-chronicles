@@ -4,6 +4,8 @@ import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
 
+import { Container } from 'pixi.js';
+
 // Alias
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -35,6 +37,9 @@ console.log(width, height);
 
 // Define any variables that are used in more than one function, making them available globally
 let farmer, enemy, fieldbg, bullet, id, state;
+
+// Define groups
+const gameScene = new Container();
 
 //========================================================================================
 //========================================================================================
@@ -68,9 +73,13 @@ function setup() {
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 400, 100);
 
+
+  gameScene.addChild(fieldbg);
+  gameScene.addChild(farmer);
+
   // Add the sprites to the stage
-  app.stage.addChild(fieldbg);
-  app.stage.addChild(farmer);
+  app.stage.addChild(gameScene);
+  
 
   //Capture the keyboard arrow keys
   const left = keyboard(37),
