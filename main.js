@@ -1,6 +1,6 @@
-import './style.css'
+//import './style.css'
 
-
+//import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
 
@@ -33,8 +33,8 @@ const { width, height } = app.view;
 // Log the width and height of the canvas
 console.log(width, height);
 
-// Define my variables
-let farmer, enemy, fieldbg, bullet, id;
+// Define any variables that are used in more than one function, making them available globally
+let farmer, enemy, fieldbg, bullet, id, state;
 
 //========================================================================================
 //========================================================================================
@@ -72,6 +72,66 @@ function setup() {
   app.stage.addChild(fieldbg);
   app.stage.addChild(farmer);
 
+  //Capture the keyboard arrow keys
+  const left = keyboard(37),
+      up = keyboard(38),
+      right = keyboard(39),
+      down = keyboard(40);
+
+  //Left arrow key `press` method
+  left.press = () => {
+    //Change the farmer's velocity when the key is pressed
+    farmer.vx = -5;
+    farmer.vy = 0;
+  };
+  
+  //Left arrow key `release` method
+  left.release = () => {
+    //If the left arrow has been released, and the right arrow isn't down,
+    //and the farmer isn't moving vertically:
+    //Stop the farmer
+    if (!right.isDown && farmer.vy === 0) {
+      farmer.vx = 0;
+    }
+  };
+
+  //Up
+  up.press = () => {
+    farmer.vy = -5;
+    farmer.vx = 0;
+  };
+  up.release = () => {
+    if (!down.isDown && farmer.vx === 0) {
+      farmer.vy = 0;
+    }
+  };
+
+  //Right
+  right.press = () => {
+    farmer.vx = 5;
+    farmer.vy = 0;
+  };
+  right.release = () => {
+    if (!left.isDown && farmer.vy === 0) {
+      farmer.vx = 0;
+    }
+  };
+
+  //Down
+  down.press = () => {
+    farmer.vy = 5;
+    farmer.vx = 0;
+  };
+  down.release = () => {
+    if (!up.isDown && farmer.vx === 0) {
+      farmer.vy = 0;
+    }
+  };
+
+
+  // Set the game state
+  state = play;
+
   // Starts game loop - Calls gameLoop every tick
   app.ticker.add(delta => gameLoop(delta));
 }
@@ -82,9 +142,56 @@ function setup() {
 // Game loop function
 //----------------------
 function gameLoop(delta) {
+
+  // Update the current game state:
+  // Because gameLoop is calling state 60 times per second, it means play function will also run 60 times per second.
+  state(delta);
+}
+
+//----------------------
+// Play function
+//----------------------
+function play(delta) {
+  // Move the farmer
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
 }
 
 
 
+function keyboard(keyCode) {
+  const key = {};
+  key.code = keyCode;
+  key.isDown = false;
+  key.isUp = true;
+  key.press = undefined;
+  key.release = undefined;
+  //The `downHandler`
+  key.downHandler = (event) => {
+    if (event.keyCode === key.code) {
+      if (key.isUp && key.press) {
+        key.press();
+      }
+      key.isDown = true;
+      key.isUp = false;
+    }
+    event.preventDefault();
+  };
+
+  //The `upHandler`
+  key.upHandler = (event) => {
+    if (event.keyCode === key.code) {
+      if (key.isDown && key.release) {
+        key.release();
+      }
+      key.isDown = false;
+      key.isUp = true;
+    }
+    event.preventDefault();
+  };
+
+  //Attach event listeners
+  window.addEventListener("keydown", key.downHandler.bind(key), false);
+  window.addEventListener("keyup", key.upHandler.bind(key), false);
+  return key;
+}

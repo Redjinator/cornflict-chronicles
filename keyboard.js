@@ -1,9 +1,9 @@
 export const keyboard = (keyCode) =>  {
-    const key = {};
-    key.code = keyCode;
+    const key  = {};
+    key.code   = keyCode;
     key.isDown = false;
-    key.isUp = true;
-    key.press = undefined;
+    key.isUp   = true;
+    key.press  = undefined;
     key.release = undefined;
     //The `downHandler`
     key.downHandler = (event) => {
