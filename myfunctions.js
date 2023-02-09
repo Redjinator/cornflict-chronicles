@@ -24,9 +24,7 @@ export function loadProgressHandler(loader, resource) {
 
 
 
-export function fire(sprite, anchor, scale, positionX, positionY) {
-    sprite.anchor.set(anchor);
-    sprite.scale.set(scale);
+export function fire(sprite, positionX, positionY) {
     sprite.position.set(positionX, positionY);
     sprite.vx = 0;
     sprite.vy = 0;

@@ -2,7 +2,7 @@
 
 import { keyboard } from './keyboard.js'
 import './myfunctions.js'
-import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
+import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 
@@ -39,7 +39,7 @@ console.log(width, height);
 
 // Define any variables that are used in more than one function, making them available globally
 let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
-
+let bullets = [];
 
 /* #region loader */
 // ----------------------
@@ -68,7 +68,7 @@ function setup() {
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
   enemy   = setSpriteProperties(new Sprite(id["enemy-small.png"]), 0.5, 0.5, 400, 100);
-  bullet  = setSpriteProperties(new Sprite(id["bullet.png"]), 0.5, 0.5, 0, 0);
+  //bullet  = setSpriteProperties(new Sprite(id["bullet.png"]), 0.5, 0.5, 0, 0);
 
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
@@ -118,14 +118,29 @@ function setup() {
   });
   /* #endregion */
 
-  app.stage.on('pointerdown', (event) => {
-    bullet.x = farmer.x;
-    bullet.y = farmer.y;
-    bullet.rotation = farmer.rotation;
-    bullet.vx = Math.cos(farmer.rotation) * 10;
-    bullet.vy = Math.sin(farmer.rotation) * 10;
-    gameScene.addChild(bullet);
-  });
+
+
+
+
+for (let i=0; i<10; i++) {
+  let bullet = new Sprite(id["bullet.png"]);
+  bullets.push(bullet);
+}
+
+app.stage.on('pointerdown', (event) => {
+  for (let i=0; i<bullets.length; i++) {
+      let bullet = bullets[i];
+      if (!bullet.parent) {
+          bullet.x = farmer.x;
+          bullet.y = farmer.y;
+          bullet.rotation = farmer.rotation;
+          bullet.vx = Math.cos(farmer.rotation) * 10;
+          bullet.vy = Math.sin(farmer.rotation) * 10;
+          gameScene.addChild(bullet);
+          break;
+      }
+  }
+});
 
   /* #region game state and ticker */
   state = play;
@@ -149,8 +164,17 @@ function play(delta) {
   // Move the farmer
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
-  bullet.x += bullet.vx;
-  bullet.y += bullet.vy;
+  
+  for (let i=0; i<bullets.length; i++) {
+    let bullet = bullets[i];
+    if (bullet.parent) {
+        bullet.x += bullet.vx;
+        bullet.y += bullet.vy;
+        if (bullet.x < 0 || bullet.x > app.screen.width || bullet.y < 0 || bullet.y > app.screen.height) {
+            gameScene.removeChild(bullet);
+        }
+    }
+  }
 }
 /* #endregion */
 
