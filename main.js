@@ -1,5 +1,30 @@
 //import './style.css'
 
+
+
+
+
+
+
+
+
+/*
+Where was I?
+
+I just got multiple bullets to work using arrays.
+
+Next: enemies and collsions
+Then: score and health
+Then: levels and waves
+Then: enemy movement
+Then: game over and restart
+Then: game win
+Then: high score screen
+Then: main menu
+*/
+
+
+
 import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
@@ -40,6 +65,8 @@ console.log(width, height);
 // Define any variables that are used in more than one function, making them available globally
 let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
 let bullets = [];
+
+let bulletLimit =10;
 
 /* #region loader */
 // ----------------------
@@ -119,10 +146,10 @@ function setup() {
   /* #endregion */
 
 
+const sound = new Audio("/audio/shot.mp3");
 
 
-
-for (let i=0; i<10; i++) {
+for (let i=0; i<bulletLimit; i++) {
   let bullet = new Sprite(id["bullet.png"]);
   bullets.push(bullet);
 }
@@ -137,6 +164,8 @@ app.stage.on('pointerdown', (event) => {
           bullet.vx = Math.cos(farmer.rotation) * 10;
           bullet.vy = Math.sin(farmer.rotation) * 10;
           gameScene.addChild(bullet);
+          let instance = new Audio("/audio/shot.mp3");
+          instance.play();
           break;
       }
   }
