@@ -149,6 +149,8 @@ function play(delta) {
   // Move the farmer
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
+  bullet.x += bullet.vx;
+  bullet.y += bullet.vy;
 }
 /* #endregion */
 
