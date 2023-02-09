@@ -1,5 +1,6 @@
 import './style.css'
 
+
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
 
@@ -32,14 +33,11 @@ const { width, height } = app.view;
 // Log the width and height of the canvas
 console.log(width, height);
 
-
-
-
-
-
 // Define my variables
 let farmer, enemy, fieldbg, bullet, id;
 
+//========================================================================================
+//========================================================================================
 
 
 // use loader
@@ -52,10 +50,13 @@ loader
 
 
 
+
+//----------------------
 // Setup function
 //----------------------
 function setup() {
 
+  app.stage.interactive = true;
 
   // This code will run, when the loader finishes loading the images
   console.log("All files loaded");
@@ -64,14 +65,25 @@ function setup() {
   id = resources["images/mvp-spritesheet.json"].textures;
 
   // Create the sprites
-  const fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
-  const farmer = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 400, 100);
+  fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
+  farmer = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 400, 100);
 
   // Add the sprites to the stage
   app.stage.addChild(fieldbg);
   app.stage.addChild(farmer);
+
+  // Starts game loop - Calls gameLoop every tick
+  app.ticker.add(delta => gameLoop(delta));
 }
 
+
+
+//----------------------
+// Game loop function
+//----------------------
+function gameLoop(delta) {
+  farmer.x += 1;
+}
 
 
 
