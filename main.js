@@ -4,13 +4,14 @@ import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
 
-import { Container } from 'pixi.js';
+import { Container, TextStyle } from 'pixi.js';
 
 // Alias
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   TextureCache = PIXI.utils.TextureCache,
   resources = PIXI.Loader.shared.resources,
+  Text = PIXI.Text,
   Sprite = PIXI.Sprite;
 
 
@@ -36,7 +37,7 @@ const { width, height } = app.view;
 console.log(width, height);
 
 // Define any variables that are used in more than one function, making them available globally
-let farmer, enemy, fieldbg, bullet, id, state;
+let farmer, enemy, fieldbg, bullet, id, state, score;
 
 // Define groups
 const gameScene = new Container();
@@ -65,6 +66,9 @@ function setup() {
 
   // This code will run, when the loader finishes loading the images
   console.log("All files loaded");
+
+  // Set score to 0
+  score = 0;
 
   // Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -109,6 +113,12 @@ function setup() {
 
   // Starts game loop - Calls gameLoop every tick
   app.ticker.add(delta => gameLoop(delta));
+
+  // Add a text scoreboard
+  const scoreboard = new Text("Score:" + score, scoreBoardStyle);
+  scoreboard.anchor.set(0.5, 0.5);
+  scoreboard.position.set(gameScene.width / 2, 100);
+  gameScene.addChild(scoreboard);
 }
 
 
@@ -134,3 +144,17 @@ function play(delta) {
 
 
 
+const scoreBoardStyle = new TextStyle({
+  fontFamily: "Arial",
+  fontSize: 36,
+  fill: "white",
+  stroke: 'orange',
+  strokeThickness: 4,
+  dropShadow: true,
+  dropShadowColor: "#000000",
+  dropShadowBlur: 4,
+  dropShadowAngle: Math.PI / 6,
+  dropShadowDistance: 6,
+  wordWrap: true,
+  wordWrapWidth: 440
+});
