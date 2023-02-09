@@ -64,7 +64,7 @@ function setup() {
   // Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
-  // Create the sprites
+  // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 400, 100);
 
@@ -82,7 +82,8 @@ function setup() {
 // Game loop function
 //----------------------
 function gameLoop(delta) {
-  farmer.x += 1;
+  farmer.x += farmer.vx;
+  farmer.y += farmer.vy;
 }
 
 
