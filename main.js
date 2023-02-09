@@ -38,36 +38,28 @@ console.log(width, height);
 /* #endregion */
 
 // Define any variables that are used in more than one function, making them available globally
-let farmer, enemy, fieldbg, bullet, id, state, score;
+let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
 
-// Define groups
-const gameScene = new Container();
+
 
 //========================================================================================
-//========================================================================================
 
-
-// use loader
+/* #region loader */
 // ----------------------
 loader.onProgress.add(loadProgressHandler);
 
 loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
-
-
+/* #endregion */
 
 /* #region Setup */
-//----------------------
-// Setup function
-//----------------------
 function setup() {
-
-  // This code will run, when the loader finishes loading the images
-  console.log("All files loaded");
 
   // Set score to 0
   score = 0;
+
+  gameScene = new Container();
 
   /* #region Create Sprites */
   // Alias called id for all the texture atlas frame id textures
@@ -114,15 +106,22 @@ function setup() {
   gameScene.addChild(scoreboard);
   /* #endregion */
 
-  // Set the game state
+
+  const mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
+  mouseTarget.position.set(app.screen.width / 2, app.screen.height / 2);
+  app.stage.interactive = true;
+
+  app.stage.on('pointermove', (event) => {
+    mouseTarget.position.set(event.data.global.x, event.data.global.y);
+  });
+  
+
+  /* #region game state and ticker */
   state = play;
-
-  // Starts game loop - Calls gameLoop every tick
   app.ticker.add(delta => gameLoop(delta));
-
+  /* #endregion */
 }
 /* #endregion */
-
 
 
 /* #region Function gameLoop */
@@ -134,7 +133,6 @@ function gameLoop(delta) {
 }
 /* #endregion */
 
-
 /* #region Function play*/
 function play(delta) {
   // Move the farmer
@@ -143,6 +141,11 @@ function play(delta) {
 }
 /* #endregion */
 
+/* #region Function end */
+function end() {
+  console.log("Game Over");
+}
+/* #endregion */
 
 /* #region Scoreboard Style */
 const scoreBoardStyle = new TextStyle({
@@ -160,3 +163,5 @@ const scoreBoardStyle = new TextStyle({
   wordWrapWidth: 440
 });
 /* #endregion */
+
+
