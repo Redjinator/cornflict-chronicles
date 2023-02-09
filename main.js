@@ -1,6 +1,6 @@
 //import './style.css'
 
-//import { keyboard } from './keyboard.js'
+import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler } from './myfunctions.js';
 
@@ -74,59 +74,25 @@ function setup() {
 
   //Capture the keyboard arrow keys
   const left = keyboard(37),
-      up = keyboard(38),
-      right = keyboard(39),
-      down = keyboard(40);
+        up = keyboard(38),
+        right = keyboard(39),
+        down = keyboard(40);
 
   //Left arrow key `press` method
-  left.press = () => {
-    //Change the farmer's velocity when the key is pressed
-    farmer.vx = -5;
-    farmer.vy = 0;
-  };
-  
-  //Left arrow key `release` method
-  left.release = () => {
-    //If the left arrow has been released, and the right arrow isn't down,
-    //and the farmer isn't moving vertically:
-    //Stop the farmer
-    if (!right.isDown && farmer.vy === 0) {
-      farmer.vx = 0;
-    }
-  };
+  left.press = () => {farmer.vx = -5; farmer.vy = 0;};
+  left.release = () => { if (!right.isDown && farmer.vy === 0) { farmer.vx = 0; }};
 
   //Up
-  up.press = () => {
-    farmer.vy = -5;
-    farmer.vx = 0;
-  };
-  up.release = () => {
-    if (!down.isDown && farmer.vx === 0) {
-      farmer.vy = 0;
-    }
-  };
+  up.press = () => {farmer.vy = -5; farmer.vx = 0;};
+  up.release = () => { if (!down.isDown && farmer.vx === 0) { farmer.vy = 0; }};
 
   //Right
-  right.press = () => {
-    farmer.vx = 5;
-    farmer.vy = 0;
-  };
-  right.release = () => {
-    if (!left.isDown && farmer.vy === 0) {
-      farmer.vx = 0;
-    }
-  };
+  right.press = () => {farmer.vx = 5; farmer.vy = 0;};
+  right.release = () => { if (!left.isDown && farmer.vy === 0) { farmer.vx = 0; }};
 
   //Down
-  down.press = () => {
-    farmer.vy = 5;
-    farmer.vx = 0;
-  };
-  down.release = () => {
-    if (!up.isDown && farmer.vx === 0) {
-      farmer.vy = 0;
-    }
-  };
+  down.press = () => {farmer.vy = 5; farmer.vx = 0;};
+  down.release = () => { if (!up.isDown && farmer.vx === 0) { farmer.vy = 0; }};
 
 
   // Set the game state
@@ -159,39 +125,3 @@ function play(delta) {
 
 
 
-function keyboard(keyCode) {
-  const key = {};
-  key.code = keyCode;
-  key.isDown = false;
-  key.isUp = true;
-  key.press = undefined;
-  key.release = undefined;
-  //The `downHandler`
-  key.downHandler = (event) => {
-    if (event.keyCode === key.code) {
-      if (key.isUp && key.press) {
-        key.press();
-      }
-      key.isDown = true;
-      key.isUp = false;
-    }
-    event.preventDefault();
-  };
-
-  //The `upHandler`
-  key.upHandler = (event) => {
-    if (event.keyCode === key.code) {
-      if (key.isDown && key.release) {
-        key.release();
-      }
-      key.isDown = false;
-      key.isUp = true;
-    }
-    event.preventDefault();
-  };
-
-  //Attach event listeners
-  window.addEventListener("keydown", key.downHandler.bind(key), false);
-  window.addEventListener("keyup", key.upHandler.bind(key), false);
-  return key;
-}
