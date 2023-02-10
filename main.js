@@ -96,11 +96,7 @@ function setup() {
   // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
-  
-  
-
-
-
+  enemy   = setSpriteProperties(new Sprite(id["enemy.png"]), 0.5, 0.2, 100, 100);
 
   // Scene management
   gameScene.addChild(fieldbg);
@@ -182,6 +178,8 @@ app.stage.on('pointerdown', (event) => {
 
   /* #region Enemies */
 
+  gameScene.addChild(enemy);
+
   // Random Spawn enemies
   for (let i=0; i<enemyCount; i++) {
     let r = randomSpawnPoint();
@@ -190,13 +188,27 @@ app.stage.on('pointerdown', (event) => {
     enemies[i].anchor.set(0.5, 0.5);
     enemies[i].x = r.x;
     enemies[i].y = r.y;
-    gameScene.addChild(enemies[i]);
+    let e = new Victor(enemies[i].x, enemies[i].y);
+    let f = new Victor(farmer.x, farmer.y);
+    let d = f.subtract(e);
+    let v = d.normalize().multiplyScalar(1);
+    enemies[i].position.set(enemies[i].position.x +v.x, enemies[i].position.y + v.y);
+    //gameScene.addChild(enemies[i]);
   }
   /* #endregion */
+
 
 }
 
 // ===================== END OF SETUP =====================
+
+
+
+
+
+
+
+
 
 /* #region Function gameLoop */
 function gameLoop(delta) {
@@ -209,8 +221,17 @@ function gameLoop(delta) {
 
 /* #region Function play*/
 function play(delta) {
+
+  // Farmer movement
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
+
+  // Enemy movement to chase farmer
+  let e = new Victor(enemy.x, enemy.y);
+  let f = new Victor(farmer.x, farmer.y);
+  let d = f.subtract(e);
+  let v = d.normalize().multiplyScalar(1);
+  enemy.position.set(enemy.position.x +v.x, enemy.position.y + v.y);
 
   for (let i=0; i<bullets.length; i++) {
     let bullet = bullets[i];
