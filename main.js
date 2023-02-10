@@ -192,11 +192,11 @@ app.stage.on('pointerdown', (event) => {
     enemies[i].y = r.y;
     gameScene.addChild(enemies[i]);
   }
-
+  /* #endregion */
 
 }
-/* #endregion */
 
+// ===================== END OF SETUP =====================
 
 /* #region Function gameLoop */
 function gameLoop(delta) {
@@ -248,16 +248,27 @@ const scoreBoardStyle = new TextStyle({
 });
 /* #endregion */
 
-
+/* #region Function randomSpawnPoint */
 function randomSpawnPoint() {
-  let edge = 0;//Math.floor(Math.random() * 4);
+  let edge = Math.floor(Math.random() * 4);
   let spawnPoint = new Victor(0, Math.random() * 100);
   switch(edge) {
-    case 0:
-      spawnPoint.x = Math.floor(Math.random() * 1280);
+    case 0: // top
+      spawnPoint.x = Math.floor(Math.random() * width);
       break;
-      default:
+    case 1: // right
+      spawnPoint.x = width;
+      spawnPoint.y = Math.floor(Math.random() * height);
+      break;
+    case 2: // bottom
+      spawnPoint.x = Math.floor(Math.random() * width);
+      spawnPoint.y = height;
+      break;
+    default: // left
+      spawnPoint.x = 0;
+      spawnPoint.y = Math.floor(Math.random() * height);
       break;
   }
   return spawnPoint;
 }
+/* #endregion */
