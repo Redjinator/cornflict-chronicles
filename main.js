@@ -337,6 +337,13 @@ function play(delta) {
     if (bullet.parent) {
         bullet.x += bullet.vx;
         bullet.y += bullet.vy;
+
+        if (hitTestRectangle(bullet, enemy)) {
+            score += 1;
+            gameScene.removeChild(bullet);
+            gameScene.removeChild(enemy);
+        }
+
         if (bullet.x < 0 || bullet.x > app.screen.width || bullet.y < 0 || bullet.y > app.screen.height) {
             gameScene.removeChild(bullet);
         }
