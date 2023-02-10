@@ -30,6 +30,7 @@ import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
+import Victor from 'victor';
 
 /* #region Aliases */
 const Application = PIXI.Application,
@@ -63,10 +64,17 @@ console.log(width, height);
 /* #endregion */
 
 // Define any variables that are used in more than one function, making them available globally
+
 let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
 let bullets = [];
+let enemies = [];
 
 let bulletLimit =10;
+let enemyCount = 10;
+
+
+let enemyRadius = 16;
+
 
 /* #region loader */
 // ----------------------
@@ -94,13 +102,15 @@ function setup() {
   // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
-  enemy   = setSpriteProperties(new Sprite(id["enemy-small.png"]), 0.5, 0.5, 400, 100);
-  //bullet  = setSpriteProperties(new Sprite(id["bullet.png"]), 0.5, 0.5, 0, 0);
+  
+  
 
+
+
+
+  // Scene management
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
-
-  // Add the sprites to the stage
   app.stage.addChild(gameScene);
   /* #endregion */
 
@@ -146,9 +156,8 @@ function setup() {
   /* #endregion */
 
 
-const sound = new Audio("/audio/shot.mp3");
 
-
+/* #region Create Bullets */
 for (let i=0; i<bulletLimit; i++) {
   let bullet = new Sprite(id["bullet.png"]);
   bullets.push(bullet);
@@ -170,11 +179,31 @@ app.stage.on('pointerdown', (event) => {
       }
   }
 });
+/* #endregion */
 
   /* #region game state and ticker */
   state = play;
   app.ticker.add(delta => gameLoop(delta));
   /* #endregion */
+
+  /* #region Enemies */
+
+  // Random Spawn enemies
+  for (let i=0; i<enemyCount; i++) {
+    let r = randomSpawnPoint();
+    enemies.push(new Sprite(id["enemy.png"]));
+    enemies[i].scale.set(0.5, 0.5);
+    enemies[i].anchor.set(0.5, 0.5);
+    enemies[i].x = r.x;
+    enemies[i].y = r.y;
+    gameScene.addChild(enemies[i]);
+  }
+
+  // Spawn an enemy at a random spawn point at the top of the gameScene
+  
+  enemy = setSpriteProperties(new Sprite(id["enemy.png"]), 0.5, 0.5, r.x, r.y);
+  gameScene.addChild(enemy);
+
 }
 /* #endregion */
 
@@ -190,10 +219,9 @@ function gameLoop(delta) {
 
 /* #region Function play*/
 function play(delta) {
-  // Move the farmer
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
-  
+
   for (let i=0; i<bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
@@ -231,3 +259,15 @@ const scoreBoardStyle = new TextStyle({
 /* #endregion */
 
 
+function randomSpawnPoint() {
+  let edge = 0;//Math.floor(Math.random() * 4);
+  let spawnPoint = new Victor(0, 0);
+  switch(edge) {
+    case 0:
+      spawnPoint.x = Math.floor(Math.random() * 1280);
+      break;
+      default:
+      break;
+  }
+  return spawnPoint;
+}
