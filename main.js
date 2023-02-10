@@ -1,13 +1,13 @@
-//import './style.css'
-
-
-//test
 /*
-Where was I?
 
-I just got multiple bullets to work using arrays.
+Author: Reginald McPherson
+Student ID: 0136897
+Course: DGL-209 Capstone Project
+Date: 2023-02-10
 
-Next: enemies and collsions
+
+
+Next: collsions
 Then: score and health
 Then: levels and waves
 Then: enemy movement
@@ -18,13 +18,14 @@ Then: main menu
 */
 
 
-
+/* #region Imports */
 import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import Victor from 'victor';
+/* #endregion */
 
 /* #region Aliases */
 const Application = PIXI.Application,
@@ -57,21 +58,15 @@ const { width, height } = app.view;
 console.log(width, height);
 /* #endregion */
 
-// Define any variables that are used in more than one function, making them available globally
-
+/* #region Variables */
 let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
 let bullets = [];
 let enemies = [];
-
 let bulletLimit =10;
 let enemyCount = 10;
-
-
-let enemyRadius = 16;
-
+/* #endregion */
 
 /* #region loader */
-// ----------------------
 loader.onProgress.add(loadProgressHandler);
 
 loader
@@ -110,21 +105,125 @@ function setup() {
         right = keyboard(39),
         down = keyboard(40);
 
-  //Left arrow key `press` method
-  left.press = () => {farmer.vx = -5; farmer.vy = 0;};
-  left.release = () => { if (!right.isDown && farmer.vy === 0) { farmer.vx = 0; }};
+//Left arrow key `press` method
+left.press = () => {
+  if (up.isDown) {
+    farmer.vx = -5;
+    farmer.vy = -5;
+  } else if (down.isDown) {
+    farmer.vx = -5;
+    farmer.vy = 5;
+  } else {
+    farmer.vx = -5;
+    farmer.vy = 0;
+  }
+};
 
-  //Up
-  up.press = () => {farmer.vy = -5; farmer.vx = 0;};
-  up.release = () => { if (!down.isDown && farmer.vx === 0) { farmer.vy = 0; }};
+left.release = () => {
+  if (!right.isDown && !up.isDown && !down.isDown) {
+    farmer.vx = 0;
+    farmer.vy = 0;
+  } else if (right.isDown) {
+    farmer.vx = 5;
+    farmer.vy = 0;
+  } else if (up.isDown) {
+    farmer.vx = 0;
+    farmer.vy = -5;
+  } else if (down.isDown) {
+    farmer.vx = 0;
+    farmer.vy = 5;
+  }
+};
 
-  //Right
-  right.press = () => {farmer.vx = 5; farmer.vy = 0;};
-  right.release = () => { if (!left.isDown && farmer.vy === 0) { farmer.vx = 0; }};
+//Up
+up.press = () => {
+  if (left.isDown) {
+    farmer.vx = -5;
+    farmer.vy = -5;
+  } else if (right.isDown) {
+    farmer.vx = 5;
+    farmer.vy = -5;
+  } else {
+    farmer.vx = 0;
+    farmer.vy = -5;
+  }
+};
 
+up.release = () => {
+  if (!down.isDown && !left.isDown && !right.isDown) {
+    farmer.vx = 0;
+    farmer.vy = 0;
+  } else if (right.isDown) {
+    farmer.vx = 5;
+    farmer.vy = 0;
+  } else if (left.isDown) {
+    farmer.vx = -5;
+    farmer.vy = 0;
+  } else if (down.isDown) {
+    farmer.vx = 0;
+    farmer.vy = 5;
+  }
+};
+
+//Right
+right.press = () => {
+  if (up.isDown) {
+  farmer.vx = 5;
+  farmer.vy = -5;
+  } else if (down.isDown) {
+  farmer.vx = 5;
+  farmer.vy = 5;
+  } else {
+  farmer.vx = 5;
+  farmer.vy = 0;
+  }
+  };
+  
+  right.release = () => {
+  if (!left.isDown && !up.isDown && !down.isDown) {
+  farmer.vx = 0;
+  farmer.vy = 0;
+  } else if (left.isDown) {
+  farmer.vx = -5;
+  farmer.vy = 0;
+  } else if (up.isDown) {
+  farmer.vx = 0;
+  farmer.vy = -5;
+  } else if (down.isDown) {
+  farmer.vx = 0;
+  farmer.vy = 5;
+  }
+  };
+  
   //Down
-  down.press = () => {farmer.vy = 5; farmer.vx = 0;};
-  down.release = () => { if (!up.isDown && farmer.vx === 0) { farmer.vy = 0; }};
+  down.press = () => {
+  if (left.isDown) {
+  farmer.vx = -5;
+  farmer.vy = 5;
+  } else if (right.isDown) {
+  farmer.vx = 5;
+  farmer.vy = 5;
+  } else {
+  farmer.vx = 0;
+  farmer.vy = 5;
+  }
+  };
+  
+  down.release = () => {
+  if (!up.isDown && !left.isDown && !right.isDown) {
+  farmer.vx = 0;
+  farmer.vy = 0;
+  } else if (right.isDown) {
+  farmer.vx = 5;
+  farmer.vy = 0;
+  } else if (left.isDown) {
+  farmer.vx = -5;
+  farmer.vy = 0;
+  } else if (up.isDown) {
+  farmer.vx = 0;
+  farmer.vy = -5;
+  }
+  };
 /* #endregion */
 
   /* #region Create Scoreboard */
