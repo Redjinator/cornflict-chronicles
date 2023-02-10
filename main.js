@@ -59,7 +59,7 @@ console.log(width, height);
 /* #endregion */
 
 /* #region Variables */
-let gameScene, farmer, enemy, fieldbg, bullet, id, state, score;
+let gameScene, farmer, enemy, fieldbg, bullet, id, state, score, scoreboard;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -227,7 +227,7 @@ right.press = () => {
 /* #endregion */
 
   /* #region Create Scoreboard */
-  const scoreboard = new Text("Score:" + score, scoreBoardStyle);
+  scoreboard = new Text("Score:" + score, scoreBoardStyle);
   scoreboard.anchor.set(0.5, 0.5);
   scoreboard.position.set(gameScene.width / 2, 100);
   gameScene.addChild(scoreboard);
@@ -340,6 +340,7 @@ function play(delta) {
 
         if (hitTestRectangle(bullet, enemy)) {
             score += 1;
+            scoreboard.text = "Score:" + score;
             gameScene.removeChild(bullet);
             gameScene.removeChild(enemy);
         }
