@@ -193,10 +193,6 @@ app.stage.on('pointerdown', (event) => {
     gameScene.addChild(enemies[i]);
   }
 
-  // Spawn an enemy at a random spawn point at the top of the gameScene
-  
-  enemy = setSpriteProperties(new Sprite(id["enemy.png"]), 0.5, 0.5, r.x, r.y);
-  gameScene.addChild(enemy);
 
 }
 /* #endregion */
@@ -255,7 +251,7 @@ const scoreBoardStyle = new TextStyle({
 
 function randomSpawnPoint() {
   let edge = 0;//Math.floor(Math.random() * 4);
-  let spawnPoint = new Victor(0, 0);
+  let spawnPoint = new Victor(0, Math.random() * 100);
   switch(edge) {
     case 0:
       spawnPoint.x = Math.floor(Math.random() * 1280);
