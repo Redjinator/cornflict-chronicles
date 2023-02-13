@@ -1,16 +1,15 @@
 /*
-
 Author: Reginald McPherson
 Student ID: 0136897
 Course: DGL-209 Capstone Project
 Date: 2023-02-10
 
-
-
+Plan
+--------------------------------
 Next: collsions
 Then: score and health
 Then: levels and waves
-Then: enemy movement
+
 Then: game over and restart
 Then: game win
 Then: high score screen
@@ -18,25 +17,24 @@ Then: main menu
 */
 
 
-/* #region Imports */
+/* #region Imports and Aliases */
 import { keyboard } from './keyboard.js'
 import './myfunctions.js'
 import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import Victor from 'victor';
-/* #endregion */
 
-/* #region Aliases */
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   TextureCache = PIXI.utils.TextureCache,
   resources = PIXI.Loader.shared.resources,
   Text = PIXI.Text,
   Sprite = PIXI.Sprite;
-/* #endregion */
+/* #endregion Imports and Aliases */
 
-/* #region Pixi Application */
+/* #region Application */
+//-----------------------
 const app = new Application({
   width: 1280,
   height: 720,
@@ -54,30 +52,31 @@ app.renderer.backgroundColor = 0x061639;
 // Get the width and height of the canvas
 const { width, height } = app.view;
 
-// Log the width and height of the canvas
-console.log(width, height);
-/* #endregion */
 
-/* #region Variables */
-let gameScene, farmer, enemy, fieldbg, bullet, id, state, score, scoreboard;
+
+// Create variables
+//-----------------------
+let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
-let enemyCount = 10;
-/* #endregion */
+let initialWaveCount = 10;
+let enemyCount = 5;
+let enemySpeed = 1;
 
-/* #region loader */
+
+
+// Loader
+//-----------------------
 loader.onProgress.add(loadProgressHandler);
 
 loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
-/* #endregion */
+/* #endregion Application */
 
 /* #region Setup */
 function setup() {
-
-  /* #region Create Containers & Sprites */
 
   // Set score to 0
   score = 0;
@@ -97,7 +96,7 @@ function setup() {
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
   app.stage.addChild(gameScene);
-  /* #endregion */
+
 
   /* #region Capture the keyboard arrow keys */
   const left = keyboard(37),
@@ -234,10 +233,13 @@ right.press = () => {
   /* #endregion */
 
   /* #region Create Mouse Target */
+  //=================================================
+  // Create a target sprite
   const mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
   mouseTarget.position.set(app.screen.width / 2, app.screen.height / 2);
   app.stage.interactive = true;
 
+  // Move the target when the mouse moves
   app.stage.on('pointermove', (event) => {
     mouseTarget.position.set(event.data.global.x, event.data.global.y);
     farmer.rotation = Math.atan2(mouseTarget.y - farmer.y, mouseTarget.x - farmer.x);
@@ -247,6 +249,8 @@ right.press = () => {
 
 
 /* #region Create Bullets */
+
+
 for (let i=0; i<bulletLimit; i++) {
   let bullet = new Sprite(id["bullet.png"]);
   bullets.push(bullet);
@@ -277,10 +281,10 @@ app.stage.on('pointerdown', (event) => {
 
   /* #region Enemies */
 
-  gameScene.addChild(enemy);
+  //gameScene.addChild(enemy);
 
   // Random Spawn enemies
-  for (let i=0; i<enemyCount; i++) {
+/*   for (let i=0; i<enemyCount; i++) {
     let r = randomSpawnPoint();
     enemies.push(new Sprite(id["enemy.png"]));
     enemies[i].scale.set(0.5, 0.5);
@@ -292,14 +296,41 @@ app.stage.on('pointerdown', (event) => {
     let d = f.subtract(e);
     let v = d.normalize().multiplyScalar(1);
     enemies[i].position.set(enemies[i].position.x +v.x, enemies[i].position.y + v.y);
-    //gameScene.addChild(enemies[i]);
-  }
+    gameScene.addChild(enemies[i]);
+  } */
+  //createEnemyWave(10);
+/*   for (let i=0; i<enemies.length; i++) {
+    gameScene.addChild(enemies[i]);
+  } */
+  //gameScene.addChild(randomEnemy());
   /* #endregion */
-
-
 }
+/* #endregion */
 
 // ===================== END OF SETUP =====================
+
+
+
+
+/* function createEnemyWave(enemyCount) {
+  for (let i=0; i<enemyCount; i++) {
+    let r = randomSpawnPoint();
+    enemies.push(new Sprite(id["enemy.png"]));
+    enemies[i].scale.set(0.5, 0.5);
+    enemies[i].anchor.set(0.5, 0.5);
+    enemies[i].x = r.x;
+    enemies[i].y = r.y;
+    let e = new Victor(enemies[i].x, enemies[i].y);
+    let f = new Victor(farmer.x, farmer.y);
+    let d = f.subtract(e);
+    let v = d.normalize().multiplyScalar(enemySpeed);
+    enemies[i].position.set(enemies[i].position.x +v.x, enemies[i].position.y + v.y);
+    gameScene.addChild(enemies[i]);
+  }
+} */
+
+
+
 
 
 
@@ -325,12 +356,28 @@ function play(delta) {
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
 
-  // Enemy movement to chase farmer
-  let e = new Victor(enemy.x, enemy.y);
-  let f = new Victor(farmer.x, farmer.y);
-  let d = f.subtract(e);
-  let v = d.normalize().multiplyScalar(1);
-  enemy.position.set(enemy.position.x +v.x, enemy.position.y + v.y);
+  if (enemies.length < enemyCount) {
+    let enemy = new Sprite(id["enemy.png"]);
+    enemies.push(enemy);
+    gameScene.addChild(enemy);
+    enemy.scale.set(0.5, 0.5);
+    enemy.anchor.set(0.5, 0.5);
+    let r = randomSpawnPoint();
+    enemy.x = r.x;
+    enemy.y = r.y;
+  }
+
+
+  // Move enemies
+  for (let i=0; i<enemies.length; i++) {
+    let enemy = enemies[i];
+    let e = new Victor(enemy.x, enemy.y);
+    let f = new Victor(farmer.x, farmer.y);
+    let d = f.subtract(e);
+    let v = d.normalize().multiplyScalar(enemySpeed);
+    enemy.position.set(enemy.position.x +v.x, enemy.position.y + v.y);
+  }
+
 
   for (let i=0; i<bullets.length; i++) {
     let bullet = bullets[i];
@@ -400,3 +447,9 @@ function randomSpawnPoint() {
   return spawnPoint;
 }
 /* #endregion */
+
+// 
+function randomEnemy() {
+  let randomEnemy = Math.floor(Math.random() * enemies.length);
+  return enemies[randomEnemy];
+}
