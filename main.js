@@ -279,31 +279,6 @@ app.stage.on('pointerdown', (event) => {
   app.ticker.add(delta => gameLoop(delta));
   /* #endregion */
 
-  /* #region Enemies */
-
-  //gameScene.addChild(enemy);
-
-  // Random Spawn enemies
-/*   for (let i=0; i<enemyCount; i++) {
-    let r = randomSpawnPoint();
-    enemies.push(new Sprite(id["enemy.png"]));
-    enemies[i].scale.set(0.5, 0.5);
-    enemies[i].anchor.set(0.5, 0.5);
-    enemies[i].x = r.x;
-    enemies[i].y = r.y;
-    let e = new Victor(enemies[i].x, enemies[i].y);
-    let f = new Victor(farmer.x, farmer.y);
-    let d = f.subtract(e);
-    let v = d.normalize().multiplyScalar(1);
-    enemies[i].position.set(enemies[i].position.x +v.x, enemies[i].position.y + v.y);
-    gameScene.addChild(enemies[i]);
-  } */
-  //createEnemyWave(10);
-/*   for (let i=0; i<enemies.length; i++) {
-    gameScene.addChild(enemies[i]);
-  } */
-  //gameScene.addChild(randomEnemy());
-  /* #endregion */
 }
 /* #endregion */
 
@@ -312,22 +287,7 @@ app.stage.on('pointerdown', (event) => {
 
 
 
-/* function createEnemyWave(enemyCount) {
-  for (let i=0; i<enemyCount; i++) {
-    let r = randomSpawnPoint();
-    enemies.push(new Sprite(id["enemy.png"]));
-    enemies[i].scale.set(0.5, 0.5);
-    enemies[i].anchor.set(0.5, 0.5);
-    enemies[i].x = r.x;
-    enemies[i].y = r.y;
-    let e = new Victor(enemies[i].x, enemies[i].y);
-    let f = new Victor(farmer.x, farmer.y);
-    let d = f.subtract(e);
-    let v = d.normalize().multiplyScalar(enemySpeed);
-    enemies[i].position.set(enemies[i].position.x +v.x, enemies[i].position.y + v.y);
-    gameScene.addChild(enemies[i]);
-  }
-} */
+
 
 
 
@@ -367,37 +327,41 @@ function play(delta) {
     enemy.y = r.y;
   }
 
-
   // Move enemies
-  for (let i=0; i<enemies.length; i++) {
+  for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
     let e = new Victor(enemy.x, enemy.y);
     let f = new Victor(farmer.x, farmer.y);
     let d = f.subtract(e);
     let v = d.normalize().multiplyScalar(enemySpeed);
-    enemy.position.set(enemy.position.x +v.x, enemy.position.y + v.y);
+    enemy.position.set(enemy.position.x + v.x, enemy.position.y + v.y);
   }
 
-
-  for (let i=0; i<bullets.length; i++) {
+  for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
-        bullet.x += bullet.vx;
-        bullet.y += bullet.vy;
+      bullet.x += bullet.vx;
+      bullet.y += bullet.vy;
 
+      for (let j = 0; j < enemies.length; j++) {
+        let enemy = enemies[j];
         if (hitTestRectangle(bullet, enemy)) {
-            score += 1;
-            scoreboard.text = "Score:" + score;
-            gameScene.removeChild(bullet);
-            gameScene.removeChild(enemy);
+          score += 1;
+          scoreboard.text = "Score:" + score;
+          gameScene.removeChild(bullet);
+          gameScene.removeChild(enemy);
+          enemies.splice(j, 1);
+          break;
         }
+      }
 
-        if (bullet.x < 0 || bullet.x > app.screen.width || bullet.y < 0 || bullet.y > app.screen.height) {
-            gameScene.removeChild(bullet);
-        }
+      if (bullet.x < 0 || bullet.x > app.screen.width || bullet.y < 0 || bullet.y > app.screen.height) {
+        gameScene.removeChild(bullet);
+      }
     }
   }
 }
+//-----
 /* #endregion */
 
 /* #region Function end */
@@ -406,7 +370,7 @@ function end() {
 }
 /* #endregion */
 
-/* #region Scoreboard Style */
+/* #region Scoreboard */
 const scoreBoardStyle = new TextStyle({
   fontFamily: "Arial",
   fontSize: 36,
