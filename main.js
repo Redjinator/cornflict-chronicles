@@ -33,7 +33,8 @@ const Application = PIXI.Application,
   TextureCache = PIXI.utils.TextureCache,
   resources = PIXI.Loader.shared.resources,
   Text = PIXI.Text,
-  Sprite = PIXI.Sprite;
+  Sprite = PIXI.Sprite,
+  graphics = new PIXI.Graphics();
 /* #endregion Imports and Aliases */
 
 /* #region Application */
@@ -59,7 +60,7 @@ const { width, height } = app.view;
 
 // Create variables
 //-----------------------
-let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard, mouseTarget;
+let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard, mouseTarget, heartsContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -87,6 +88,8 @@ function setup() {
   // Create the game scene
   gameScene = new Container();
 
+
+
   // Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
@@ -95,13 +98,38 @@ function setup() {
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
 
 
+
   // Scene management
   const mainMenu = new MainMenu({app, gameScene});
   app.stage.addChild(mainMenu.menuScene);
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
 
+  heartsContainer = new Container();
+  const maxHearts = 5;
   
+  graphics.beginFill(0xff0000); // Set the fill color to red
+  graphics.moveTo(75, 40); // Move to the top point of the heart shape
+  graphics.bezierCurveTo(75, 37, 70, 25, 50, 25); // Draw the left curve of the heart shape
+  graphics.bezierCurveTo(20, 25, 20, 62.5, 20, 62.5); // Draw the bottom-left curve of the heart shape
+  graphics.bezierCurveTo(20, 80, 40, 102, 75, 120); // Draw the bottom-right curve of the heart shape
+  graphics.bezierCurveTo(110, 102, 130, 80, 130, 62.5); // Draw the top-right curve of the heart shape
+  graphics.bezierCurveTo(130, 62.5, 130, 25, 100, 25); // Draw the top-left curve of the heart shape
+  graphics.bezierCurveTo(85, 25, 75, 37, 75, 40); // Close the heart shape
+  graphics.endFill();
+
+  const heartTexture = app.renderer.generateTexture(graphics);
+  const heart = new PIXI.Sprite(heartTexture);
+  
+  // Add the hearts to the container
+  for (let i = 0; i < maxHearts; i++) {
+    const heart = new PIXI.Sprite(heartTexture);
+    heart.scale.set(0.2); // Set the size of the heart
+    heart.x = i * (heart.width + 10); // Position each heart
+    heartsContainer.addChild(heart); // Add the heart to the container
+  }
+
+  gameScene.addChild(heartsContainer);
 
 
 
@@ -334,6 +362,7 @@ function play(delta) {
     if (hitTestRectangle(farmer, enemy)) {
       gameScene.removeChild(enemy);
       enemies.splice(i, 1);
+      heartsContainer.removeChildAt(heartsContainer.children.length - 1);
       break;
     }
   }
