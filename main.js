@@ -327,6 +327,11 @@ function gameLoop(delta) {
   // Update the current game state:
   // Because gameLoop is calling state 60 times per second, it means play function will also run 60 times per second.
   state(delta);
+
+  // Check if farmer is out of hearts
+  if (heartsContainer.children.length == 0) {
+    state = end;
+  }
 }
 /* #endregion */
 
@@ -359,12 +364,12 @@ function play(delta) {
     let v = d.normalize().multiplyScalar(enemySpeed);
     enemy.position.set(enemy.position.x + v.x, enemy.position.y + v.y);
 
-    if (hitTestRectangle(farmer, enemy)) {
-      gameScene.removeChild(enemy);
-      enemies.splice(i, 1);
-      heartsContainer.removeChildAt(heartsContainer.children.length - 1);
-      break;
-    }
+      if (hitTestRectangle(farmer, enemy)) {
+        gameScene.removeChild(enemy);
+        enemies.splice(i, 1);
+        heartsContainer.removeChildAt(heartsContainer.children.length - 1);
+        break;
+      }
   }
 
   // Bullet movement and collision
@@ -398,6 +403,11 @@ function play(delta) {
 /* #region Function end */
 function end() {
   console.log("Game Over");
+
+
+
+  const highScore = new HighScore(score);
+  app.stage.addChild(highScore.highScoreScene);
 }
 /* #endregion */
 
