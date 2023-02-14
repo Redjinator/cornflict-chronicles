@@ -330,6 +330,12 @@ function play(delta) {
     let d = f.subtract(e);
     let v = d.normalize().multiplyScalar(enemySpeed);
     enemy.position.set(enemy.position.x + v.x, enemy.position.y + v.y);
+
+    if (hitTestRectangle(farmer, enemy)) {
+      gameScene.removeChild(enemy);
+      enemies.splice(i, 1);
+      break;
+    }
   }
 
   // Bullet movement and collision
