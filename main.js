@@ -19,11 +19,13 @@ Then: main menu
 
 /* #region Imports and Aliases */
 import { keyboard } from './keyboard.js'
-import './myfunctions.js'
-import { setSpriteProperties, loadProgressHandler, fire } from './myfunctions.js';
+import { setSpriteProperties, loadProgressHandler, randomSpawnPoint } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
+import MainMenu from './mainmenu.js';
 import Victor from 'victor';
+
+
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -56,7 +58,7 @@ const { width, height } = app.view;
 
 // Create variables
 //-----------------------
-let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard;
+let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard, mouseTarget;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -91,11 +93,17 @@ function setup() {
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
   enemy   = setSpriteProperties(new Sprite(id["enemy.png"]), 0.5, 0.2, 100, 100);
+  
 
   // Scene management
+  const mainMenu = new MainMenu({app, gameScene});
+  app.stage.addChild(mainMenu.menuScene);
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
-  app.stage.addChild(gameScene);
+
+  
+
+
 
 
   /* #region Capture the keyboard arrow keys */
@@ -235,7 +243,7 @@ right.press = () => {
   /* #region Create Mouse Target */
   //=================================================
   // Create a target sprite
-  const mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
+  mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
   mouseTarget.position.set(app.screen.width / 2, app.screen.height / 2);
   app.stage.interactive = true;
 
@@ -245,8 +253,6 @@ right.press = () => {
     farmer.rotation = Math.atan2(mouseTarget.y - farmer.y, mouseTarget.x - farmer.x);
   });
   /* #endregion */
-
-
 
 /* #region Create Bullets */
 
@@ -287,19 +293,6 @@ app.stage.on('pointerdown', (event) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* #region Function gameLoop */
 function gameLoop(delta) {
 
@@ -327,6 +320,8 @@ function play(delta) {
     enemy.y = r.y;
   }
 
+
+
   // Move enemies
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
@@ -337,6 +332,7 @@ function play(delta) {
     enemy.position.set(enemy.position.x + v.x, enemy.position.y + v.y);
   }
 
+  // Bullet movement and collision
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
@@ -387,30 +383,7 @@ const scoreBoardStyle = new TextStyle({
 });
 /* #endregion */
 
-/* #region Function randomSpawnPoint */
-function randomSpawnPoint() {
-  let edge = Math.floor(Math.random() * 4);
-  let spawnPoint = new Victor(0, Math.random() * 100);
-  switch(edge) {
-    case 0: // top
-      spawnPoint.x = Math.floor(Math.random() * width);
-      break;
-    case 1: // right
-      spawnPoint.x = width;
-      spawnPoint.y = Math.floor(Math.random() * height);
-      break;
-    case 2: // bottom
-      spawnPoint.x = Math.floor(Math.random() * width);
-      spawnPoint.y = height;
-      break;
-    default: // left
-      spawnPoint.x = 0;
-      spawnPoint.y = Math.floor(Math.random() * height);
-      break;
-  }
-  return spawnPoint;
-}
-/* #endregion */
+
 
 // 
 function randomEnemy() {
