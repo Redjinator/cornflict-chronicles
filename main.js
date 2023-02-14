@@ -385,8 +385,3 @@ const scoreBoardStyle = new TextStyle({
 
 
 
-// 
-function randomEnemy() {
-  let randomEnemy = Math.floor(Math.random() * enemies.length);
-  return enemies[randomEnemy];
-}
