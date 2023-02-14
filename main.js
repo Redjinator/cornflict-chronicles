@@ -24,6 +24,7 @@ import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import MainMenu from './mainmenu.js';
 import Victor from 'victor';
+import HighScore from './highscore.js';
 
 
 
@@ -92,8 +93,7 @@ function setup() {
   // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
-  enemy   = setSpriteProperties(new Sprite(id["enemy.png"]), 0.5, 0.2, 100, 100);
-  
+
 
   // Scene management
   const mainMenu = new MainMenu({app, gameScene});
