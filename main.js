@@ -77,6 +77,9 @@ loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
+
+
+  
 /* #endregion Application */
 
 /* #region Setup */
@@ -135,10 +138,10 @@ function setup() {
 
 
   /* #region Capture the keyboard arrow keys */
-  const left = keyboard(37),
-        up = keyboard(38),
-        right = keyboard(39),
-        down = keyboard(40);
+  const left = keyboard(65),
+        up = keyboard(87),
+        right = keyboard(68),
+        down = keyboard(83);
 
 //Left arrow key `press` method
 left.press = () => {
