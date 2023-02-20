@@ -3,23 +3,12 @@ Author: Reginald McPherson
 Student ID: 0136897
 Course: DGL-209 Capstone Project
 Modified: 2023-02-20
-
-Plan
---------------------------------
-Next: game over condition
-Then: high score screen
-Then: parallax scrolling background
-Then: levels and waves
-Then: game win
-Then: music and sound effects
-Then: replace assets with original art
 */
 
 
 /* #region Imports, Aliases and Application */
-
 import { setSpriteProperties, loadProgressHandler, randomSpawnPoint } from './myfunctions.js';
-import { Container, TextStyle } from 'pixi.js';
+import { Container } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import MainMenu from './mainmenu.js';
 import Victor from 'victor';
@@ -48,7 +37,7 @@ const { width, height } = app.view;
 
 
 // Create variables
-let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard, mouseTarget, heartsContainer;
+let gameScene, farmer, fieldbg, id, state, scoreboard, heartsContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -88,8 +77,7 @@ function setup() {
   id = resources["images/mvp-spritesheet.json"].textures;
 
 
-  // TODO: This function is kind of confusing, not sure if I should keep it or not.
-  // *Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
+  // * Create the background of the field
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
 
 
@@ -113,9 +101,6 @@ function setup() {
   app.stage.on('pointermove', (event) => {
     farmer.rotation = Math.atan2(event.data.global.y - farmer.y, event.data.global.x - farmer.x);
   });
-
-
-
 
   // *Creating Bullets
   for (let i=0; i<bulletLimit; i++) {
@@ -167,6 +152,11 @@ function gameLoop(delta) {
 }
 /* #endregion */
 
+
+
+
+
+
 /* #region Function play*/
 // ! PLAY FUNCTION
 function play(delta) {
@@ -175,6 +165,8 @@ function play(delta) {
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
 
+
+  // *Enemy Respawning
   if (enemies.length < enemyCount) {
     let enemy = new Sprite(id["enemy.png"]);
     enemies.push(enemy);
@@ -187,8 +179,7 @@ function play(delta) {
   }
 
 
-
-  // * Move enemies
+  // *Move enemies
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
     let e = new Victor(enemy.x, enemy.y);
@@ -205,13 +196,15 @@ function play(delta) {
       }
   }
 
-  // * Bullet movement and collision
+
+  // *Bullet movement
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
       bullet.x += bullet.vx;
       bullet.y += bullet.vy;
 
+      // *Check for collision with enemies
       for (let j = 0; j < enemies.length; j++) {
         let enemy = enemies[j];
         if (hitTestRectangle(bullet, enemy)) {
@@ -223,21 +216,23 @@ function play(delta) {
         }
       }
 
+      // *Remove bullets out of bounds
       if (bullet.x < 0 || bullet.x > width || bullet.y < 0 || bullet.y > height) {
         gameScene.removeChild(bullet);
       }
     }
   }
 }
-//-----
 /* #endregion */
 
-/* #region Function end */
+
+
+
+
+
 // ! END FUNCTION
 function end() {
   scoreboard.resetScore();
-
-
 }
-/* #endregion */
+
 
