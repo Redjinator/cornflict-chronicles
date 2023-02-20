@@ -2,44 +2,38 @@
 Author: Reginald McPherson
 Student ID: 0136897
 Course: DGL-209 Capstone Project
-Date: 2023-02-10
+Modified: 2023-02-20
 
 Plan
 --------------------------------
-Next: collsions
-Then: score and health
-Then: levels and waves
-
-Then: game over and restart
-Then: game win
+Next: game over condition
 Then: high score screen
-Then: main menu
+Then: parallax scrolling background
+Then: levels and waves
+Then: game win
+Then: music and sound effects
+Then: replace assets with original art
 */
 
 
-/* #region Imports and Aliases */
+/* #region Imports, Aliases and Application */
 
 import { setSpriteProperties, loadProgressHandler, randomSpawnPoint } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import MainMenu from './mainmenu.js';
 import Victor from 'victor';
-import HighScore from './highscore.js';
 import { setupKeyboard } from './keyboardMovement.js';
-
+import { createHearts } from './hearts.js';
 
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
-  TextureCache = PIXI.utils.TextureCache,
   resources = PIXI.Loader.shared.resources,
   Text = PIXI.Text,
-  Sprite = PIXI.Sprite,
-  graphics = new PIXI.Graphics();
-/* #endregion Imports and Aliases */
+  Sprite = PIXI.Sprite
 
-/* #region Application */
-//-----------------------
+
 const app = new Application({
   width: 1280,
   height: 720,
@@ -58,30 +52,31 @@ app.renderer.backgroundColor = 0x061639;
 const { width, height } = app.view;
 
 
-
 // Create variables
-//-----------------------
 let gameScene, farmer, enemy, fieldbg, id, state, score, scoreboard, mouseTarget, heartsContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
-let initialWaveCount = 10;
 let enemyCount = 5;
 let enemySpeed = 1;
 
 
-
 // Loader
-//-----------------------
 loader.onProgress.add(loadProgressHandler);
 
 loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
 
-
-  
 /* #endregion Application */
+
+
+
+
+
+
+
+
 
 /* #region Setup */
 function setup() {
@@ -109,29 +104,7 @@ function setup() {
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
 
-  heartsContainer = new Container();
-  const maxHearts = 5;
-  
-  graphics.beginFill(0xff0000); // Set the fill color to red
-  graphics.moveTo(75, 40); // Move to the top point of the heart shape
-  graphics.bezierCurveTo(75, 37, 70, 25, 50, 25); // Draw the left curve of the heart shape
-  graphics.bezierCurveTo(20, 25, 20, 62.5, 20, 62.5); // Draw the bottom-left curve of the heart shape
-  graphics.bezierCurveTo(20, 80, 40, 102, 75, 120); // Draw the bottom-right curve of the heart shape
-  graphics.bezierCurveTo(110, 102, 130, 80, 130, 62.5); // Draw the top-right curve of the heart shape
-  graphics.bezierCurveTo(130, 62.5, 130, 25, 100, 25); // Draw the top-left curve of the heart shape
-  graphics.bezierCurveTo(85, 25, 75, 37, 75, 40); // Close the heart shape
-  graphics.endFill();
-
-  const heartTexture = app.renderer.generateTexture(graphics);
-  const heart = new PIXI.Sprite(heartTexture);
-  
-  // Add the hearts to the container
-  for (let i = 0; i < maxHearts; i++) {
-    const heart = new PIXI.Sprite(heartTexture);
-    heart.scale.set(0.2); // Set the size of the heart
-    heart.x = i * (heart.width + 10); // Position each heart
-    heartsContainer.addChild(heart); // Add the heart to the container
-  }
+  heartsContainer = createHearts(app);
 
   gameScene.addChild(heartsContainer);
 
@@ -207,7 +180,7 @@ function gameLoop(delta) {
   state(delta);
 
   // Check if farmer is out of hearts
-  if (heartsContainer.children.length == 0) {
+  if ((state != end) && (heartsContainer.children.length == 0)) {
     state = end;
   }
 }
@@ -280,12 +253,9 @@ function play(delta) {
 
 /* #region Function end */
 function end() {
-  console.log("Game Over");
+  
 
 
-
-  const highScore = new HighScore(score);
-  app.stage.addChild(highScore.highScoreScene);
 }
 /* #endregion */
 
