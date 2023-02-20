@@ -31,7 +31,6 @@ import Scoreboard from './scoreboard.js';
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   resources = PIXI.Loader.shared.resources,
-  Text = PIXI.Text,
   Sprite = PIXI.Sprite
 
 
@@ -43,13 +42,8 @@ const app = new Application({
   resolution: 1
 });
 
-// Add canvas created by Pixi to the DOM
+// *Add canvas and get width and height
 document.body.appendChild(app.view);
-
-// Change the background color of the canvas (app.view)
-app.renderer.backgroundColor = 0x061639;
-
-// Get the width and height of the canvas
 const { width, height } = app.view;
 
 
@@ -93,6 +87,8 @@ function setup() {
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
+
+  // TODO: This function is kind of confusing, not sure if I should keep it or not.
   // *Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
 
@@ -113,51 +109,40 @@ function setup() {
   scoreboard = new Scoreboard();
   gameScene.addChild(scoreboard.scoreboard);
 
-
-  /* #region Create Mouse Target */
-  //=================================================
-  // Create a target sprite
-  mouseTarget = app.stage.addChild(new PIXI.Graphics().beginFill(0xffffff).lineStyle({color: 0x111111, alpha: 0.5, width: 1}).drawCircle(0,0,8).endFill());
-  mouseTarget.position.set(app.screen.width / 2, app.screen.height / 2);
-  app.stage.interactive = true;
-
-  // Move the target when the mouse moves
+  // *Rotate the farmer to face the mouse
   app.stage.on('pointermove', (event) => {
-    mouseTarget.position.set(event.data.global.x, event.data.global.y);
-    farmer.rotation = Math.atan2(mouseTarget.y - farmer.y, mouseTarget.x - farmer.x);
+    farmer.rotation = Math.atan2(event.data.global.y - farmer.y, event.data.global.x - farmer.x);
   });
-  /* #endregion */
-
-/* #region Create Bullets */
 
 
-for (let i=0; i<bulletLimit; i++) {
-  let bullet = new Sprite(id["bullet.png"]);
-  bullets.push(bullet);
-}
 
-app.stage.on('pointerdown', (event) => {
-  for (let i=0; i<bullets.length; i++) {
-      let bullet = bullets[i];
-      if (!bullet.parent) {
-          bullet.x = farmer.x;
-          bullet.y = farmer.y;
-          bullet.rotation = farmer.rotation;
-          bullet.vx = Math.cos(farmer.rotation) * 10;
-          bullet.vy = Math.sin(farmer.rotation) * 10;
-          gameScene.addChild(bullet);
-          let instance = new Audio("/audio/shot.mp3");
-          instance.play();
-          break;
-      }
+
+  // *Creating Bullets
+  for (let i=0; i<bulletLimit; i++) {
+    let bullet = new Sprite(id["bullet.png"]);
+    bullets.push(bullet);
   }
-});
-/* #endregion */
 
-  /* #region game state and ticker */
+  app.stage.on('pointerdown', (event) => {
+    for (let i=0; i<bullets.length; i++) {
+        let bullet = bullets[i];
+        if (!bullet.parent) {
+            bullet.x = farmer.x;
+            bullet.y = farmer.y;
+            bullet.rotation = farmer.rotation;
+            bullet.vx = Math.cos(farmer.rotation) * 10;
+            bullet.vy = Math.sin(farmer.rotation) * 10;
+            gameScene.addChild(bullet);
+            let instance = new Audio("/audio/shot.mp3");
+            instance.play();
+            break;
+        }
+    }
+  });
+
+  app.stage.interactive = true;
   state = play;
   app.ticker.add(delta => gameLoop(delta));
-  /* #endregion */
 
 }
 /* #endregion */
@@ -238,7 +223,7 @@ function play(delta) {
         }
       }
 
-      if (bullet.x < 0 || bullet.x > app.screen.width || bullet.y < 0 || bullet.y > app.screen.height) {
+      if (bullet.x < 0 || bullet.x > width || bullet.y < 0 || bullet.y > height) {
         gameScene.removeChild(bullet);
       }
     }
