@@ -25,6 +25,7 @@ import MainMenu from './mainmenu.js';
 import Victor from 'victor';
 import { setupKeyboard } from './keyboardMovement.js';
 import { createHearts } from './hearts.js';
+import Scoreboard from './scoreboard.js';
 
 
 const Application = PIXI.Application,
@@ -79,45 +80,39 @@ loader
 
 
 /* #region Setup */
+// ! SETUP FUNCTION --------------------------------------------------------------------------
 function setup() {
 
-  // Set score to 0
+  // *Set score to 0
   score = 0;
 
-  // Create the game scene
+  // *Create the game scene
   gameScene = new Container();
 
 
-
-  // Alias called id for all the texture atlas frame id textures
+  // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
-  // Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
+  // *Create the sprites with the setSpriteProperties function (sprite, anchor, scale, positionX, positionY) cx and cy are set to 0 internally by default.
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
+
+
+  // *Create the farmer
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
+  farmer = setupKeyboard(farmer);
+  heartsContainer = createHearts(app);
 
-
-
-  // Scene management
+  // *Scene management
   const mainMenu = new MainMenu({app, gameScene});
   app.stage.addChild(mainMenu.menuScene);
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
-
-  heartsContainer = createHearts(app);
-
   gameScene.addChild(heartsContainer);
 
-  farmer = setupKeyboard(farmer);
+  // *Create the scoreboard
+  scoreboard = new Scoreboard();
+  gameScene.addChild(scoreboard.scoreboard);
 
-
-
-  /* #region Create Scoreboard */
-  scoreboard = new Text("Score:" + score, scoreBoardStyle);
-  scoreboard.anchor.set(0.5, 0.5);
-  scoreboard.position.set(gameScene.width / 2, 100);
-  gameScene.addChild(scoreboard);
-  /* #endregion */
 
   /* #region Create Mouse Target */
   //=================================================
@@ -173,13 +168,14 @@ app.stage.on('pointerdown', (event) => {
 
 
 /* #region Function gameLoop */
+// ! GAME LOOP
 function gameLoop(delta) {
 
-  // Update the current game state:
-  // Because gameLoop is calling state 60 times per second, it means play function will also run 60 times per second.
+  // *Update the current game state:
+  // *Because gameLoop is calling state 60 times per second, it means play function will also run 60 times per second.
   state(delta);
 
-  // Check if farmer is out of hearts
+  // *Check if farmer is out of hearts
   if ((state != end) && (heartsContainer.children.length == 0)) {
     state = end;
   }
@@ -187,9 +183,10 @@ function gameLoop(delta) {
 /* #endregion */
 
 /* #region Function play*/
+// ! PLAY FUNCTION
 function play(delta) {
 
-  // Farmer movement
+  // *Farmer movement
   farmer.x += farmer.vx;
   farmer.y += farmer.vy;
 
@@ -206,7 +203,7 @@ function play(delta) {
 
 
 
-  // Move enemies
+  // * Move enemies
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
     let e = new Victor(enemy.x, enemy.y);
@@ -223,7 +220,7 @@ function play(delta) {
       }
   }
 
-  // Bullet movement and collision
+  // * Bullet movement and collision
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
@@ -233,8 +230,7 @@ function play(delta) {
       for (let j = 0; j < enemies.length; j++) {
         let enemy = enemies[j];
         if (hitTestRectangle(bullet, enemy)) {
-          score += 1;
-          scoreboard.text = "Score:" + score;
+          scoreboard.increaseScore();
           gameScene.removeChild(bullet);
           gameScene.removeChild(enemy);
           enemies.splice(j, 1);
@@ -252,29 +248,11 @@ function play(delta) {
 /* #endregion */
 
 /* #region Function end */
+// ! END FUNCTION
 function end() {
-  
+  scoreboard.resetScore();
 
 
 }
 /* #endregion */
-
-/* #region Scoreboard */
-const scoreBoardStyle = new TextStyle({
-  fontFamily: "Arial",
-  fontSize: 36,
-  fill: "white",
-  stroke: 'orange',
-  strokeThickness: 4,
-  dropShadow: true,
-  dropShadowColor: "#000000",
-  dropShadowBlur: 4,
-  dropShadowAngle: Math.PI / 6,
-  dropShadowDistance: 6,
-  wordWrap: true,
-  wordWrapWidth: 440
-});
-/* #endregion */
-
-
 
