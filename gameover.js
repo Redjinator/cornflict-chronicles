@@ -1,34 +1,32 @@
 import { Container, Text, TextStyle } from 'pixi.js';
-import { setup } from './main.js';
 
 export default class GameOver {
     constructor(app) {
         this.app = app;
-        this.scene = new Container();
+        this.gameOverScene = new Container();
 
-        const gameOverText = new Text('Game Over', new TextStyle({
-            fontFamily: 'Arial',
-            fontSize: 72,
-            fill: 'white'
-            }));
-        gameOverText.anchor.set(0.5, 0.5);
-        gameOverText.position.set(1280 / 2, 720 / 2);
 
-        const restartButton = new Text('Restart', new TextStyle({
-            fontFamily: 'Arial',
+        // * Start Game Button Text
+        // *=================================================
+        this.restartButton = new Text("RESTART");
+        this.restartButton.style = new TextStyle({
+            fill: 0xFFFFFF,
             fontSize: 24,
-            fill: 'white'
-            }));
-        restartButton.anchor.set(0.5, 0.5);
-        restartButton.position.set(1280 / 2, 720 / 2 + 100);
-        restartButton.interactive = true;
-        restartButton.buttonMode = true;
-        restartButton.on('pointerdown', () => {
-            this.app.stage.removeChild(this.scene);
-            // use setup in main.js to start a new game
-            setup();
-    });
+            fontFamily: "Arial",
+            align: "center"
+        });
+        this.restartButton.x = this.app.screen.width / 2;
+        this.restartButton.y = this.app.screen.height / 2;
+        this.restartButton.anchor.set(0.5, 0.5);
+        this.gameOverScene.addChild(this.restartButton);
 
-    this.scene.addChild(gameOverText, restartButton);
+        // Listener for start button
+        this.restartButton.interactive = true;
+        this.restartButton.buttonMode = true;
+
+        this.restartButton.on('pointerdown', () => {
+            this.app.stage.removeChild(this.gameOverScene);
+        });
+
     }
 }

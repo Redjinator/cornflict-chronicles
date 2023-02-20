@@ -38,7 +38,7 @@ const { width, height } = app.view;
 
 
 // *Variables
-let gameScene, gameOverScene, farmer, fieldbg, id, state, scoreboard, heartsContainer;
+let gameScene, gameOver, farmer, fieldbg, id, state, scoreboard, heartsContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -67,9 +67,6 @@ loader
 // ! SETUP FUNCTION --------------------------------------------------------------------------
 export function setup() {
 
-  // *Set score to 0
-
-
   // *Create the game scene
   gameScene = new Container();
 
@@ -89,6 +86,7 @@ export function setup() {
 
   // *Scene management
   const mainMenu = new MainMenu({app, gameScene});
+  gameOver = new GameOver(app);
   app.stage.addChild(mainMenu.menuScene);
   gameScene.addChild(fieldbg);
   gameScene.addChild(farmer);
@@ -126,7 +124,7 @@ export function setup() {
     }
   });
 
-  gameOverScene = new GameOver(app);
+
 
   
   state = play;
@@ -156,8 +154,8 @@ function gameLoop(delta) {
   }
 
   // *Game over if farmer is out of hearts
-  if (state === end && !gameOverScene.scene.parent) {
-    app.stage.addChild(gameOverScene.scene);
+  if (state === end && !gameOver.gameOverScene.parent) {
+    app.stage.addChild(gameOver.gameOverScene);
   }
 }
 /* #endregion */
