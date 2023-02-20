@@ -67,7 +67,7 @@ loader
 function setup() {
 
   // *Set score to 0
-  score = 0;
+
 
   // *Create the game scene
   gameScene = new Container();
