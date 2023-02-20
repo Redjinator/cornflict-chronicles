@@ -18,13 +18,14 @@ Then: main menu
 
 
 /* #region Imports and Aliases */
-import { keyboard } from './keyboard.js'
+
 import { setSpriteProperties, loadProgressHandler, randomSpawnPoint } from './myfunctions.js';
 import { Container, TextStyle } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import MainMenu from './mainmenu.js';
 import Victor from 'victor';
 import HighScore from './highscore.js';
+import { setupKeyboard } from './keyboardMovement.js';
 
 
 
@@ -134,135 +135,9 @@ function setup() {
 
   gameScene.addChild(heartsContainer);
 
+  farmer = setupKeyboard(farmer);
 
 
-
-  /* #region Capture the keyboard arrow keys */
-  const left = keyboard(65),
-        up = keyboard(87),
-        right = keyboard(68),
-        down = keyboard(83);
-
-//Left arrow key `press` method
-left.press = () => {
-  if (up.isDown) {
-    farmer.vx = -5;
-    farmer.vy = -5;
-  } else if (down.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 5;
-  } else {
-    farmer.vx = -5;
-    farmer.vy = 0;
-  }
-};
-
-left.release = () => {
-  if (!right.isDown && !up.isDown && !down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
-  } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 0;
-  } else if (up.isDown) {
-    farmer.vx = 0;
-    farmer.vy = -5;
-  } else if (down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 5;
-  }
-};
-
-//Up
-up.press = () => {
-  if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = -5;
-  } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = -5;
-  } else {
-    farmer.vx = 0;
-    farmer.vy = -5;
-  }
-};
-
-up.release = () => {
-  if (!down.isDown && !left.isDown && !right.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
-  } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 0;
-  } else if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 0;
-  } else if (down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 5;
-  }
-};
-
-//Right
-right.press = () => {
-  if (up.isDown) {
-  farmer.vx = 5;
-  farmer.vy = -5;
-  } else if (down.isDown) {
-  farmer.vx = 5;
-  farmer.vy = 5;
-  } else {
-  farmer.vx = 5;
-  farmer.vy = 0;
-  }
-  };
-  
-  right.release = () => {
-  if (!left.isDown && !up.isDown && !down.isDown) {
-  farmer.vx = 0;
-  farmer.vy = 0;
-  } else if (left.isDown) {
-  farmer.vx = -5;
-  farmer.vy = 0;
-  } else if (up.isDown) {
-  farmer.vx = 0;
-  farmer.vy = -5;
-  } else if (down.isDown) {
-  farmer.vx = 0;
-  farmer.vy = 5;
-  }
-  };
-  
-  //Down
-  down.press = () => {
-  if (left.isDown) {
-  farmer.vx = -5;
-  farmer.vy = 5;
-  } else if (right.isDown) {
-  farmer.vx = 5;
-  farmer.vy = 5;
-  } else {
-  farmer.vx = 0;
-  farmer.vy = 5;
-  }
-  };
-  
-  down.release = () => {
-  if (!up.isDown && !left.isDown && !right.isDown) {
-  farmer.vx = 0;
-  farmer.vy = 0;
-  } else if (right.isDown) {
-  farmer.vx = 5;
-  farmer.vy = 0;
-  } else if (left.isDown) {
-  farmer.vx = -5;
-  farmer.vy = 0;
-  } else if (up.isDown) {
-  farmer.vx = 0;
-  farmer.vy = -5;
-  }
-  };
-/* #endregion */
 
   /* #region Create Scoreboard */
   scoreboard = new Text("Score:" + score, scoreBoardStyle);
