@@ -15,6 +15,7 @@ import Victor from 'victor';
 import { setupKeyboard } from './keyboardMovement.js';
 import { createHearts } from './hearts.js';
 import Scoreboard from './scoreboard.js';
+import GameOver from './gameover.js';
 
 
 const Application = PIXI.Application,
@@ -36,8 +37,8 @@ document.body.appendChild(app.view);
 const { width, height } = app.view;
 
 
-// Create variables
-let gameScene, farmer, fieldbg, id, state, scoreboard, heartsContainer;
+// *Variables
+let gameScene, gameOverScene, farmer, fieldbg, id, state, scoreboard, heartsContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -45,7 +46,7 @@ let enemyCount = 5;
 let enemySpeed = 1;
 
 
-// Loader
+// *Loader
 loader.onProgress.add(loadProgressHandler);
 
 loader
@@ -64,7 +65,7 @@ loader
 
 /* #region Setup */
 // ! SETUP FUNCTION --------------------------------------------------------------------------
-function setup() {
+export function setup() {
 
   // *Set score to 0
 
@@ -79,7 +80,7 @@ function setup() {
 
   // * Create the background of the field
   fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
-
+  app.stage.interactive = true;
 
   // *Create the farmer
   farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
@@ -125,9 +126,13 @@ function setup() {
     }
   });
 
-  app.stage.interactive = true;
+  gameOverScene = new GameOver(app);
+
+  
   state = play;
   app.ticker.add(delta => gameLoop(delta));
+
+  
 
 }
 /* #endregion */
@@ -148,6 +153,11 @@ function gameLoop(delta) {
   // *Check if farmer is out of hearts
   if ((state != end) && (heartsContainer.children.length == 0)) {
     state = end;
+  }
+
+  // *Game over if farmer is out of hearts
+  if (state === end && !gameOverScene.scene.parent) {
+    app.stage.addChild(gameOverScene.scene);
   }
 }
 /* #endregion */
