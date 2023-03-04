@@ -38,7 +38,7 @@ const { width, height } = app.view;
 
 
 // *Variables
-let gameScene, gameOver, farmer, fieldbg, id, state, scoreboard, heartsContainer;
+let gameScene, gameOver, farmer, fieldbg, id, state, scoreboard, heartsContainer, backgroundContainer;
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
@@ -58,11 +58,6 @@ loader
 
 
 
-
-
-
-
-
 /* #region Setup */
 // ! SETUP FUNCTION --------------------------------------------------------------------------
 export function setup() {
@@ -70,6 +65,20 @@ export function setup() {
   // *Create the game scene
   gameScene = new Container();
 
+  // *Create the background
+  backgroundContainer = new Container();
+  gameScene.addChild(backgroundContainer);
+
+  // *Create the background
+  const bgTexture = PIXI.Texture.from('images/ground01.jpg');
+  const bgImage = setSpriteProperties(new PIXI.TilingSprite(bgTexture, 1280, 720), 1, 1, 0, 0); // 0, 0, 0, 0
+
+  //*Add the background to the background container
+  backgroundContainer.addChild(bgImage);
+
+  //*Position background image
+  bgImage.x = 0;
+  bgImage.y = 0;
 
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -125,12 +134,8 @@ export function setup() {
   });
 
 
-
-  
   state = play;
   app.ticker.add(delta => gameLoop(delta));
-
-  
 
 }
 /* #endregion */
@@ -144,23 +149,20 @@ export function setup() {
 // ! GAME LOOP
 function gameLoop(delta) {
 
-  // *Update the current game state:
-  // *Because gameLoop is calling state 60 times per second, it means play function will also run 60 times per second.
+  // *Update game state 60x per second
   state(delta);
 
-  // *Check if farmer is out of hearts
+  // * Check state and hearts
   if ((state != end) && (heartsContainer.children.length == 0)) {
     state = end;
   }
 
-  // *Game over if farmer is out of hearts
+  // * Check if game is over
   if (state === end && !gameOver.gameOverScene.parent) {
     app.stage.addChild(gameOver.gameOverScene);
   }
 }
 /* #endregion */
-
-
 
 
 
@@ -234,13 +236,7 @@ function play(delta) {
 /* #endregion */
 
 
-
-
-
-
 // ! END FUNCTION
 function end() {
   scoreboard.resetScore();
 }
-
-
