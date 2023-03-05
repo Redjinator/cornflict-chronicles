@@ -20,6 +20,8 @@ import { createBackground } from './createBackground.js';
 import { createPlayer } from './player.js';
 import { createEnemy } from './enemy.js';
 import { moveEnemies } from './enemyMovement.js';
+import { createBullet } from './bullet.js';
+import { moveBullets } from './bulletMovement.js';
 
 
 const Application = PIXI.Application,
@@ -36,7 +38,7 @@ const app = new Application({
   resolution: 1
 });
 
-// *Add canvas and get width and height
+// *Get canvas width and height
 document.body.appendChild(app.view);
 const { width, height } = app.view;
 
@@ -48,8 +50,7 @@ let gameScene,
     id,
     state,
     scoreboard,
-    heartsContainer,
-    backgroundContainer;
+    heartsContainer;
 
 
 let bullets = [];
@@ -60,7 +61,6 @@ let enemySpeed = 1;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
-let bgSpeed = 1;
 
 
 // *Loader
@@ -71,14 +71,13 @@ loader
   .load(setup);
 
 
-// ! SETUP FUNCTION --------------------------------------------------------------------------
+// ! SETUP FUNCTION ---
 export function setup() {
 
   state = menu;
 
   // *Create the game scene
   gameScene = new Container();
-  backgroundContainer = new Container();
 
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -116,7 +115,7 @@ export function setup() {
 
   // *Creating Bullets
   for (let i=0; i<bulletLimit; i++) {
-    let bullet = new Sprite(id["bullet.png"]);
+    let bullet = createBullet(id);
     bullets.push(bullet);
   }
 
@@ -161,17 +160,12 @@ function gameLoop(delta) {
 }
 
 
-
 // ! PLAY FUNCTION
 function play(delta) {
 
   // *Farmer movement since last frame
   const farmerDeltaX = farmer.vx * delta;
   const farmerDeltaY = farmer.vy * delta;
-
-  // *Move bg
-  backgroundContainer.x -= farmerDeltaX;
-  backgroundContainer.y -= farmerDeltaY;
 
   updateBG(farmerDeltaX, farmerDeltaY);
 
@@ -185,35 +179,8 @@ function play(delta) {
 
   // *Move enemies
   moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
-
-
-  // *Bullet movement
-  for (let i = 0; i < bullets.length; i++) {
-    let bullet = bullets[i];
-    if (bullet.parent) {
-      bullet.x += bullet.vx - farmerDeltaX;
-      bullet.y += bullet.vy - farmerDeltaY;
-
-      // *Check for collision with enemies
-      for (let j = 0; j < enemies.length; j++) {
-        let enemy = enemies[j];
-        if (hitTestRectangle(bullet, enemy)) {
-          scoreboard.increaseScore();
-          gameScene.removeChild(bullet);
-          gameScene.removeChild(enemy);
-          enemies.splice(j, 1);
-          break;
-        }
-      }
-
-      // *Remove bullets out of bounds
-      if (bullet.x < 0 || bullet.x > width || bullet.y < 0 || bullet.y > height) {
-        gameScene.removeChild(bullet);
-      }
-    }
-  }
+  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
 }
-
 
 // ! END FUNCTION
 function end() {
