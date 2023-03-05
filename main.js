@@ -40,7 +40,8 @@ const { width, height } = app.view;
 
 
 // *Variables
-let gameScene,
+let mainMenu,
+    gameScene,
     gameOver,
     farmer,
     id,
@@ -93,7 +94,7 @@ export function setup() {
 
 
   // *Scene management
-  const mainMenu = new MainMenu({app, gameScene});
+  mainMenu = new MainMenu({app, gameScene});
   gameOver = new GameOver(app);
   app.stage.addChild(mainMenu.menuScene);
 
@@ -159,23 +160,25 @@ function gameLoop(delta) {
 // ! PLAY FUNCTION
 function play(delta) {
 
+
   // *Farmer movement since last frame
   const farmerDeltaX = farmer.vx * delta;
   const farmerDeltaY = farmer.vy * delta;
 
   updateBG(farmerDeltaX, farmerDeltaY);
 
+  if (!mainMenu.menuScene.parent) {
+    // *Enemy Respawning
+    if (enemies.length < enemyCount) {
+      let enemy = createEnemy(id);
+      enemies.push(enemy);
+      gameScene.addChild(enemy);
+    }
 
-  // *Enemy Respawning
-  if (enemies.length < enemyCount) {
-    let enemy = createEnemy(id);
-    enemies.push(enemy);
-    gameScene.addChild(enemy);
+    // *Move enemies
+    moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
+    moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
   }
-
-  // *Move enemies
-  moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
-  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
 }
 
 // ! END FUNCTION
