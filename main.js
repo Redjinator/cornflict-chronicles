@@ -5,7 +5,6 @@ Course: DGL-209 Capstone Project
 Modified: 2023-02-20
 */
 
-
 import MainMenu from './mainmenu.js';
 import Scoreboard from './scoreboard.js';
 import GameOver from './gameover.js';
@@ -20,12 +19,10 @@ import { createBullet } from './bullet.js';
 import { moveBullets } from './bulletMovement.js';
 import { shoot } from './shoot.js';
 
-
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   resources = PIXI.Loader.shared.resources,
   Sprite = PIXI.Sprite
-
 
 const app = new Application({
   width: 1280,
@@ -35,12 +32,9 @@ const app = new Application({
   resolution: 1
 });
 
-// *Get canvas width and height
 document.body.appendChild(app.view);
 const { width, height } = app.view;
 
-
-// *Variables
 let mainMenu,
     gameScene,
     gameOver,
@@ -49,7 +43,6 @@ let mainMenu,
     state,
     scoreboard,
     heartsContainer;
-
 
 let bullets = [];
 let enemies = [];
@@ -60,10 +53,8 @@ let bgBackground;
 let bgX = 0;
 let bgY = 0;
 
-
 // *Loader
 loader.onProgress.add(loadProgressHandler);
-
 loader
   .add('images/mvp-spritesheet.json')
   .add('/audio/shot.mp3')
@@ -82,17 +73,18 @@ export function setup() {
   scoreboard = new Scoreboard();
   gameScene.addChild(scoreboard.scoreboard);
 
-  // *Alias called id for all the texture atlas frame id textures
+  // *Alias for texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
   app.stage.interactive = true;
 
   // *Create the farmer
   farmer  = createPlayer(id);
+  gameScene.addChild(farmer);
 
   // *Create the hearts container
   heartsContainer = createHearts(app);
-
+  gameScene.addChild(heartsContainer);
 
   // *Create the background
   const bgTexture = PIXI.Texture.from('images/ground02.jpg');
@@ -101,13 +93,9 @@ export function setup() {
 
   // *Scene management
   mainMenu = new MainMenu({app, gameScene});
-  gameOver = new GameOver(app, farmer, heartsContainer, bullets, enemies, enemyCount, enemySpeed, scoreboard, bulletLimit, id);
+  gameOver = new GameOver(app);
 
   app.stage.addChild(mainMenu.menuScene);
-
-  gameScene.addChild(farmer);
-  gameScene.addChild(heartsContainer);
-
 
 
   // *Rotate the farmer to face the mouse
@@ -126,6 +114,7 @@ export function setup() {
     shoot(farmer, bullets, gameScene);
   });
 
+  // *Start game loop
   state = play;
   app.ticker.add(delta => gameLoop(delta));
 }
