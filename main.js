@@ -5,7 +5,6 @@ Course: DGL-209 Capstone Project
 Modified: 2023-04-03
 */
 
-import MainMenu from './mainmenu.js';
 import Scoreboard from './scoreboard.js';
 import GameOver from './gameover.js';
 import { Container } from 'pixi.js';
@@ -18,6 +17,7 @@ import { createBullet } from './bullet.js';
 import { moveBullets } from './bulletMovement.js';
 import { shoot } from './shoot.js';
 import { spawnEnemies } from './spawn.js';
+import TitleScreen from './titlescreen.js';
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -34,7 +34,7 @@ const app = new Application({
 document.body.appendChild(app.view);
 const { width, height } = app.view;
 
-let mainMenu,
+let titleScreen,
     gameScene,
     gameOver,
     farmer,
@@ -56,17 +56,19 @@ let bgY = 0;
 loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/mvp-spritesheet.json')
-  .add('/audio/shot.mp3')
+  .add('gameMusic', '/audio/music/InHeavyMetal.mp3')
+  .add('shot', '/audio/shot.mp3')
   .load(setup);
 
 
 // ! SETUP FUNCTION (run once)
 export function setup() {
 
-  state = menu;
+
 
   // *Create the game scene
   gameScene = new Container();
+  
 
   // *Create the scoreboard
   scoreboard = new Scoreboard();
@@ -90,10 +92,7 @@ export function setup() {
   bgBackground = createBackground(bgTexture, app);
 
   // *Scene management
-  mainMenu = new MainMenu({app, gameScene});
   gameOver = new GameOver(app);
-
-  app.stage.addChild(mainMenu.menuScene);
 
 
   // *Rotate farmer to face mouse
@@ -115,8 +114,14 @@ export function setup() {
   // *Spawn enemies, 5 waves, 10 seconds between waves, 5 enemies per wave, 1 speed, gameScene, enemies, id
   spawnEnemies(5, 10000, enemyCount, enemySpeed, gameScene, enemies, id);
 
+  // *Create Titlescreen
+  titleScreen = new TitleScreen(app, state, play);
+  app.stage.addChild(titleScreen.titleScene);
+  
+  app.stage.addChild(gameScene);
+  state = PlayState;
+
   // *Start game loop
-  state = play;
   app.ticker.add(delta => gameLoop(delta));
 }
 
@@ -145,23 +150,72 @@ function play(delta) {
 
   // Moves the bg with the farmer
   updateBG(farmerDeltaX, farmerDeltaY);
-
-  if (!mainMenu.menuScene.parent) { // Prevent offscreen movement when menu is open
+  // Prevent offscreen movement when titleScreen is open
+  if (currentState === PlayState) {
     moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
     moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
   }
 }
 
-// ! END FUNCTION
-function end() { scoreboard.resetScore() }
-
-// ! MENU FUNCTION
-function menu() {}
-
-// ! UPDATE BACKGROUND FUNCTION
 function updateBG(farmerX, farmerY) {
   bgX -= farmerX;
   bgY -= farmerY;
   bgBackground.tilePosition.x = bgX;
   bgBackground.tilePosition.y = bgY;
 }
+
+function title() {}
+function end() {
+  scoreboard.resetScore();
+  if(currentState === end && !gameOver.gameOverScene.parent) {
+    app.stage.addChild(gameOver.gameOverScene);
+  }
+}
+
+//!States--------------------------------------------------------------
+
+// *Title Screen
+const TitleScreenState = {
+  name: 'TitleScreenState',
+  onStartButtonClick: function() {
+    stateTransition(PlayState);
+  }
+};
+
+// *Play State
+const PlayState = {
+  name: 'PlayState',
+  onPlayerDeath: function() {
+    stateTransition(GameOverState);
+  }
+};
+
+// *Game Over State
+const GameOverState = {
+  name: 'GameOverState',
+  onRestartButtonClick: function() {
+    stateTransition(TitleScreenState);
+  }
+};
+
+let currentState = TitleScreenState;
+
+function stateTransition(nextState) {
+  console.log(`Moving from ${currentState.name} to ${nextState.name}`);
+  currentState = nextState;
+  titleScreen.titleScene.visible = currentState === TitleScreenState;
+  gameScene.visible = currentState === PlayState;
+  gameOver.gameOverScene.visible = currentState === GameOverState;
+}
+
+app.stage.on('pointerdown', ()=> {
+  currentState.onStartButtonClick();
+});
+
+farmer.on('death', ()=> {
+  currentState.onPlayerDeath();
+});
+
+gameOver.on('restart', ()=> {
+  currentState.onRestartButtonClick();
+});
