@@ -5,17 +5,13 @@ Course: DGL-209 Capstone Project
 Modified: 2023-02-20
 */
 
-import { Container } from 'pixi.js';
-import { hitTestRectangle } from './collisions.js';
+
 import MainMenu from './mainmenu.js';
-import Victor from 'victor';
-import { setupKeyboard } from './keyboardMovement.js';
-import { createHearts } from './hearts.js';
 import Scoreboard from './scoreboard.js';
 import GameOver from './gameover.js';
-import { setSpriteProperties } from './spriteProperties.js';
+import { Container } from 'pixi.js';
+import { createHearts } from './hearts.js';
 import { loadProgressHandler } from './loadProgress.js';
-import { randomSpawnPoint } from './spawnPoint.js';
 import { createBackground } from './createBackground.js';
 import { createPlayer } from './player.js';
 import { createEnemy } from './enemy.js';
