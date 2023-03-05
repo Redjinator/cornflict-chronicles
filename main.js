@@ -48,7 +48,7 @@ let bullets = [];
 let enemies = [];
 let bulletLimit =10;
 let enemyCount = 5;
-let enemySpeed = 1;
+let enemySpeed = 3;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
@@ -115,7 +115,7 @@ export function setup() {
   });
 
   // *Spawn enemies, 5 waves, 10 seconds between waves, 5 enemies per wave, 1 speed, gameScene, enemies, id
-  spawnEnemies(5, 10000, enemyCount, enemySpeed, gameScene, enemies, id);
+  spawnEnemies(5, 10000, enemyCount, enemySpeed, gameScene, enemies, id, app);
 
   // *Create the scoreboard
   scoreboard = new Scoreboard();
