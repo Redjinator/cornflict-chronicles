@@ -6,7 +6,8 @@ export function spawnEnemies(numWaves, waveDelay, enemiesPerWave, speed, gameSce
   for (let wave = 0; wave < numWaves; wave++) {
     setTimeout(() => {
       for (let i = 0; i < enemiesPerWave; i++) {
-        let enemy = new Enemy(id, speed, farmer, heartsContainer, gameScene);
+        
+        let enemy = new Enemy(id, (Math.random() * speed), farmer, heartsContainer, gameScene);
         let side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
         let enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 50; // randomly choose a distance between 50 and the diagonal of the screen
         

@@ -7,7 +7,7 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySp
     let e = new Victor(enemy.x, enemy.y);
     let f = new Victor(farmer.x, farmer.y);
     let d = f.subtract(e);
-    let v = d.normalize().multiplyScalar(enemySpeed);
+    let v = d.normalize().multiplyScalar(enemy.speed);
     enemy.position.set(enemy.position.x + v.x - farmerDeltaX, enemy.position.y + v.y - farmerDeltaY);
 
     if (hitTestRectangle(farmer, enemy)) {
