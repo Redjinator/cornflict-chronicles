@@ -6,7 +6,6 @@ Modified: 2023-02-20
 */
 
 
-/* #region Imports, Aliases and Application */
 import { setSpriteProperties, loadProgressHandler, randomSpawnPoint } from './myfunctions.js';
 import { Container } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
@@ -38,12 +37,25 @@ const { width, height } = app.view;
 
 
 // *Variables
-let gameScene, gameOver, farmer, fieldbg, id, state, scoreboard, heartsContainer, backgroundContainer;
+let gameScene,
+    gameOver,
+    farmer,
+    id,
+    state,
+    scoreboard,
+    heartsContainer,
+    backgroundContainer;
+
+
 let bullets = [];
 let enemies = [];
 let bulletLimit =10;
 let enemyCount = 5;
 let enemySpeed = 1;
+let bgBackground;
+let bgX = 0;
+let bgY = 0;
+let bgSpeed = 1;
 
 
 // *Loader
@@ -53,12 +65,7 @@ loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
 
-/* #endregion Application */
 
-
-
-
-/* #region Setup */
 // ! SETUP FUNCTION --------------------------------------------------------------------------
 export function setup() {
 
@@ -66,7 +73,7 @@ export function setup() {
 
   // *Create the game scene
   gameScene = new Container();
-
+  backgroundContainer = new Container();
 
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -79,54 +86,9 @@ export function setup() {
   heartsContainer = createHearts(app);
 
 
-
-
   // *Create the background
   const bgTexture = PIXI.Texture.from('images/ground02.jpg');
-  let bgImages = [];
-
-  // *Create multiple instances of the background image and position them side by side
-  for (let i = 0; i < 4; i++) {
-    let bgImage = new Sprite(bgTexture);
-    bgImage.width = app.screen.width;
-    bgImage.height = app.screen.height;
-    bgImage.anchor.set(0.5, 0.5);
-    bgImage.position.set(app.screen.width * i, app.screen.height * i);
-    bgImages.push(bgImage);
-  }
-
-
-
-// *Adjust the position of the background images to make them seamless
-for (let i = 0; i < bgImages.length; i++) {
-  if (i == 0) {
-    continue;
-  }
-  let previousBg = bgImages[i - 1];
-  let currentBg = bgImages[i];
-  currentBg.x = previousBg.x + previousBg.width;
-  //currentBg.y = previousBg.y + previousBg.height;
-}
-
-// *Create a container to hold the background images
-backgroundContainer = new Container();
-
-//*Add the background images to the background container
-for(let i = 0; i < bgImages.length; i++) {
-  backgroundContainer.addChild(bgImages[i]);
-}
-
-
-
-gameScene.addChild(backgroundContainer);
-
-
-
-
-
-
-
-
+  bgBackground = createBg(bgTexture)
 
 
   // *Scene management
@@ -169,18 +131,12 @@ gameScene.addChild(backgroundContainer);
     }
   });
 
-
   state = play;
   app.ticker.add(delta => gameLoop(delta));
-
-
-
 }
-/* #endregion */
 
-// ===================== END OF SETUP =====================
 
-/* #region Function gameLoop */
+
 // ! GAME LOOP
 function gameLoop(delta) {
 
@@ -197,10 +153,9 @@ function gameLoop(delta) {
     app.stage.addChild(gameOver.gameOverScene);
   }
 }
-/* #endregion */
 
 
-/* #region Function play*/
+
 // ! PLAY FUNCTION
 function play(delta) {
 
@@ -212,7 +167,7 @@ function play(delta) {
   backgroundContainer.x -= farmerDeltaX;
   backgroundContainer.y -= farmerDeltaY;
 
-  wrap(backgroundContainer);
+  updateBG(farmerDeltaX, farmerDeltaY);
 
 
   // *Enemy Respawning
@@ -235,7 +190,7 @@ function play(delta) {
     let f = new Victor(farmer.x, farmer.y);
     let d = f.subtract(e);
     let v = d.normalize().multiplyScalar(enemySpeed);
-    enemy.position.set(enemy.position.x + v.x, enemy.position.y + v.y);
+    enemy.position.set(enemy.position.x + v.x - farmerDeltaX, enemy.position.y + v.y - farmerDeltaY);
 
       if (hitTestRectangle(farmer, enemy)) {
         gameScene.removeChild(enemy);
@@ -250,8 +205,8 @@ function play(delta) {
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
-      bullet.x += bullet.vx;
-      bullet.y += bullet.vy;
+      bullet.x += bullet.vx - farmerDeltaX;
+      bullet.y += bullet.vy - farmerDeltaY;
 
       // *Check for collision with enemies
       for (let j = 0; j < enemies.length; j++) {
@@ -272,7 +227,7 @@ function play(delta) {
     }
   }
 }
-/* #endregion */
+
 
 
 // ! END FUNCTION
@@ -280,29 +235,6 @@ function end() {
   scoreboard.resetScore();
 }
 
-function wrap(sprite) {
-  const padding = 0;
-  
-  // Check if the sprite is off-screen to the left
-  if (sprite.x + padding < -sprite.width) {
-    sprite.x = app.screen.width + sprite.width - padding;
-  }
-
-  // Check if the sprite is off-screen to the right
-  if (sprite.x - padding > app.screen.width) {
-    sprite.x = -sprite.width + padding;
-  }
-
-  // Check if the sprite is off-screen to the top
-  if (sprite.y + padding < -sprite.height) {
-    sprite.y = app.screen.height + sprite.height - padding;
-  }
-
-  // Check if the sprite is off-screen to the bottom
-  if (sprite.y - padding > app.screen.height) {
-    sprite.y = -sprite.height + padding;
-  }
-}
 
 function createBg(texture) {
   let tiling = new PIXI.TilingSprite(texture, 1280, 720);
@@ -313,4 +245,11 @@ function createBg(texture) {
 
 function menu() {
 
+}
+
+function updateBG(fx, fy) {
+  bgX -= fx;
+  bgY -= fy;
+  bgBackground.tilePosition.x = bgX;
+  bgBackground.tilePosition.y = bgY;
 }
