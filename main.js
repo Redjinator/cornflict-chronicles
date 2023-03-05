@@ -18,6 +18,7 @@ import { createEnemy } from './enemy.js';
 import { moveEnemies } from './enemyMovement.js';
 import { createBullet } from './bullet.js';
 import { moveBullets } from './bulletMovement.js';
+import { shoot } from './shoot.js';
 
 
 const Application = PIXI.Application,
@@ -73,7 +74,6 @@ loader
 export function setup() {
 
   state = menu;
-  
 
   // *Create the game scene
   gameScene = new Container();
@@ -121,21 +121,9 @@ export function setup() {
     bullets.push(bullet);
   }
 
+  // *Shooting Listener
   app.stage.on('pointerdown', (event) => {
-    for (let i=0; i<bullets.length; i++) {
-        let bullet = bullets[i];
-        if (!bullet.parent) {
-            bullet.x = farmer.x;
-            bullet.y = farmer.y;
-            bullet.rotation = farmer.rotation;
-            bullet.vx = Math.cos(farmer.rotation) * 10;
-            bullet.vy = Math.sin(farmer.rotation) * 10;
-            gameScene.addChild(bullet);
-            let instance = new Audio("/audio/shot.mp3");
-            instance.play();
-            break;
-        }
-    }
+    shoot(farmer, bullets, gameScene);
   });
 
   state = play;
