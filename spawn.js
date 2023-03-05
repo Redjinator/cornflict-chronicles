@@ -1,12 +1,12 @@
-import { createEnemy } from './enemy.js';
+import { Enemy } from './enemy.js';
 
-export function spawnEnemies(numWaves, waveDelay, enemiesPerWave, speed, gameScene, enemies, id, app) {
+export function spawnEnemies(numWaves, waveDelay, enemiesPerWave, speed, gameScene, enemies, id, app, farmer, heartsContainer) {
   let enemyCount = 0;
   
   for (let wave = 0; wave < numWaves; wave++) {
     setTimeout(() => {
       for (let i = 0; i < enemiesPerWave; i++) {
-        let enemy = createEnemy(id);
+        let enemy = new Enemy(id, speed, farmer, heartsContainer, gameScene);
         let side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
         let enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 50; // randomly choose a distance between 50 and the diagonal of the screen
         
@@ -29,8 +29,9 @@ export function spawnEnemies(numWaves, waveDelay, enemiesPerWave, speed, gameSce
             enemy.y = Math.floor(Math.random() * app.view.height);
             break;
         }
-        
-        enemy.vy = speed;
+
+        console.log(`Enemy ${i+1} spawned at x:${Math.ceil(enemy.x)} y:${Math.ceil(enemy.y)} with velocity vx:${Math.ceil(enemy.vx)} vy:${Math.ceil(enemy.vy)}`);
+
         gameScene.addChild(enemy);
         enemies.push(enemy);
         enemyCount++;

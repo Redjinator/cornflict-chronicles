@@ -1,4 +1,3 @@
-import { Sprite } from 'pixi.js';
 import { hitTestRectangle } from './collisions.js';
 import Victor from 'victor';
 

@@ -48,7 +48,7 @@ let bullets = [];
 let enemies = [];
 let bulletLimit =10;
 let enemyCount = 5;
-let enemySpeed = 3;
+let enemySpeed = 5;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
