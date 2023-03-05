@@ -91,13 +91,6 @@ export function setup() {
   // *Create the hearts container
   heartsContainer = createHearts(app);
 
-  // *Create the enemies
-/*   for (let i=0; i<enemyCount; i++) {
-    let enemy = createEnemy(id);
-    enemies.push(enemy);
-    gameScene.addChild(enemy);
-  } */
-
 
   // *Create the background
   const bgTexture = PIXI.Texture.from('images/ground02.jpg');
@@ -181,10 +174,6 @@ function play(delta) {
   backgroundContainer.y -= farmerDeltaY;
 
   updateBG(farmerDeltaX, farmerDeltaY);
-
-
-
-
 
 
   // *Enemy Respawning
