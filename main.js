@@ -18,6 +18,7 @@ import { moveBullets } from './bulletMovement.js';
 import { shoot } from './shoot.js';
 import { spawnEnemies } from './spawn.js';
 import TitleScreen from './titlescreen.js';
+import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -39,9 +40,9 @@ let titleScreen,
     gameOver,
     farmer,
     id,
-    state,
     scoreboard,
-    heartsContainer;
+    heartsContainer,
+    music;
 
 let bullets = [];
 let enemies = [];
@@ -51,6 +52,7 @@ let enemySpeed = 1;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
+let currentState = null;
 
 // *Loader
 loader.onProgress.add(loadProgressHandler);
@@ -68,11 +70,12 @@ export function setup() {
 
   // *Create the game scene
   gameScene = new Container();
-  
+  gameScene.visible = false;
 
-  // *Create the scoreboard
-  scoreboard = new Scoreboard();
-  gameScene.addChild(scoreboard.scoreboard);
+  music = new Audio('/audio/music/InHeavyMetal.mp3');
+
+
+
 
   // *Alias for texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -114,12 +117,18 @@ export function setup() {
   // *Spawn enemies, 5 waves, 10 seconds between waves, 5 enemies per wave, 1 speed, gameScene, enemies, id
   spawnEnemies(5, 10000, enemyCount, enemySpeed, gameScene, enemies, id);
 
+  // *Create the scoreboard
+  scoreboard = new Scoreboard();
+  gameScene.addChild(scoreboard.scoreboard);
+  gameScene.setChildIndex(scoreboard.scoreboard, gameScene.children.length - 1);
+
   // *Create Titlescreen
-  titleScreen = new TitleScreen(app, state, play);
+  titleScreen = new TitleScreen(app, startGame);
   app.stage.addChild(titleScreen.titleScene);
-  
+  currentState = TitleScreenState;
+
   app.stage.addChild(gameScene);
-  state = PlayState;
+
 
   // *Start game loop
   app.ticker.add(delta => gameLoop(delta));
@@ -129,13 +138,15 @@ export function setup() {
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
 
-  // Run current state
-  state(delta);
+  if (currentState === PlayState) {
+    // Call play function
+    play(delta);
+  }
 
   // Check state and hearts, if 0, end game
-  if ((state != end) && (heartsContainer.children.length == 0)) { state = end } 
+  if ((currentState != end) && (heartsContainer.children.length == 0)) { currentState = end } 
 
-  if (state === end && !gameOver.gameOverScene.parent) { // Check if game is over
+  if (currentState === end && !gameOver.gameOverScene.parent) { // Check if game is over
     app.stage.addChild(gameOver.gameOverScene);
   }
 }
@@ -144,6 +155,10 @@ function gameLoop(delta) {
 // ! PLAY FUNCTION (run 60fps)
 function play(delta) {
 
+  if (!music.isPlaying) {
+    music.play();
+  }
+
   // Farmer movement since last frame
   const farmerDeltaX = farmer.vx * delta;
   const farmerDeltaY = farmer.vy * delta;
@@ -151,10 +166,10 @@ function play(delta) {
   // Moves the bg with the farmer
   updateBG(farmerDeltaX, farmerDeltaY);
   // Prevent offscreen movement when titleScreen is open
-  if (currentState === PlayState) {
-    moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
-    moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
-  }
+
+  moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
+  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
+  
 }
 
 function updateBG(farmerX, farmerY) {
@@ -164,7 +179,7 @@ function updateBG(farmerX, farmerY) {
   bgBackground.tilePosition.y = bgY;
 }
 
-function title() {}
+
 function end() {
   scoreboard.resetScore();
   if(currentState === end && !gameOver.gameOverScene.parent) {
@@ -173,32 +188,9 @@ function end() {
 }
 
 //!States--------------------------------------------------------------
-
-// *Title Screen
-const TitleScreenState = {
-  name: 'TitleScreenState',
-  onStartButtonClick: function() {
-    stateTransition(PlayState);
-  }
-};
-
-// *Play State
-const PlayState = {
-  name: 'PlayState',
-  onPlayerDeath: function() {
-    stateTransition(GameOverState);
-  }
-};
-
-// *Game Over State
-const GameOverState = {
-  name: 'GameOverState',
-  onRestartButtonClick: function() {
-    stateTransition(TitleScreenState);
-  }
-};
-
-let currentState = TitleScreenState;
+function startGame() {
+  stateTransition(PlayState);
+}
 
 function stateTransition(nextState) {
   console.log(`Moving from ${currentState.name} to ${nextState.name}`);
@@ -208,14 +200,5 @@ function stateTransition(nextState) {
   gameOver.gameOverScene.visible = currentState === GameOverState;
 }
 
-app.stage.on('pointerdown', ()=> {
-  currentState.onStartButtonClick();
-});
 
-farmer.on('death', ()=> {
-  currentState.onPlayerDeath();
-});
 
-gameOver.on('restart', ()=> {
-  currentState.onRestartButtonClick();
-});
