@@ -112,8 +112,8 @@ export function setup() {
     shoot(farmer, bullets, gameScene);
   });
 
-  // *Spawn enemies
-  spawnEnemies(enemyCount, enemySpeed, gameScene, enemies, id);
+  // *Spawn enemies, 5 waves, 10 seconds between waves, 5 enemies per wave, 1 speed, gameScene, enemies, id
+  spawnEnemies(5, 10000, enemyCount, enemySpeed, gameScene, enemies, id);
 
   // *Start game loop
   state = play;
@@ -121,15 +121,16 @@ export function setup() {
 }
 
 
-
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
 
+  // Run current state
   state(delta);
 
-  if ((state != end) && (heartsContainer.children.length == 0)) { state = end } //*Check state and hearts, if 0, end game
+  // Check state and hearts, if 0, end game
+  if ((state != end) && (heartsContainer.children.length == 0)) { state = end } 
 
-  if (state === end && !gameOver.gameOverScene.parent) { //*Check if game is over
+  if (state === end && !gameOver.gameOverScene.parent) { // Check if game is over
     app.stage.addChild(gameOver.gameOverScene);
   }
 }
@@ -145,8 +146,7 @@ function play(delta) {
   // Moves the bg with the farmer
   updateBG(farmerDeltaX, farmerDeltaY);
 
-  // Make sure that we're not on the menu before moving enemies and bullets
-  if (!mainMenu.menuScene.parent) {
+  if (!mainMenu.menuScene.parent) { // Prevent offscreen movement when menu is open
     moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
     moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
   }
