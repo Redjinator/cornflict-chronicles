@@ -65,6 +65,7 @@ loader.onProgress.add(loadProgressHandler);
 
 loader
   .add('images/mvp-spritesheet.json')
+  .add('/audio/shot.mp3')
   .load(setup);
 
 
@@ -72,9 +73,14 @@ loader
 export function setup() {
 
   state = menu;
+  
 
   // *Create the game scene
   gameScene = new Container();
+
+  // *Create the scoreboard
+  scoreboard = new Scoreboard();
+  gameScene.addChild(scoreboard.scoreboard);
 
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -95,15 +101,14 @@ export function setup() {
 
   // *Scene management
   mainMenu = new MainMenu({app, gameScene});
-  gameOver = new GameOver(app);
+  gameOver = new GameOver(app, farmer, heartsContainer, bullets, enemies, enemyCount, enemySpeed, scoreboard, bulletLimit, id);
+
   app.stage.addChild(mainMenu.menuScene);
 
   gameScene.addChild(farmer);
   gameScene.addChild(heartsContainer);
 
-  // *Create the scoreboard
-  scoreboard = new Scoreboard();
-  gameScene.addChild(scoreboard.scoreboard);
+
 
   // *Rotate the farmer to face the mouse
   app.stage.on('pointermove', (event) => {
