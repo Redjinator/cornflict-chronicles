@@ -1,8 +1,9 @@
 
 
 export default class MainMenu {
-    constructor({app, gameScene, highScoresScene, gameOverScene}) {
+    constructor({app, state, gameScene, highScoresScene, gameOverScene}) {
         this.app = app;
+        this.state = state;
         this.gameScene = gameScene;
         this.menuScene = new PIXI.Container();
 
@@ -27,6 +28,7 @@ export default class MainMenu {
         this.startButton.on('pointerdown', () => {
             this.app.stage.removeChild(this.menuScene);
             this.app.stage.addChild(this.gameScene);
+            this.state = app.play;
         });
 
 

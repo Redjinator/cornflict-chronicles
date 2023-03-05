@@ -62,42 +62,78 @@ loader
 // ! SETUP FUNCTION --------------------------------------------------------------------------
 export function setup() {
 
+  state = menu;
+
   // *Create the game scene
   gameScene = new Container();
 
-  // *Create the background
-  backgroundContainer = new Container();
-  gameScene.addChild(backgroundContainer);
-
-  // *Create the background
-  const bgTexture = PIXI.Texture.from('images/ground01.jpg');
-  const bgImage = setSpriteProperties(new PIXI.TilingSprite(bgTexture, 1280, 720), 1, 1, 0, 0); // 0, 0, 0, 0
-
-  //*Add the background to the background container
-  backgroundContainer.addChild(bgImage);
-
-  //*Position background image
-  bgImage.x = 0;
-  bgImage.y = 0;
 
   // *Alias called id for all the texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
-
-  // * Create the background of the field
-  fieldbg = setSpriteProperties(new Sprite(id["field-bg.png"]), 1, 1, 1280, 720);
   app.stage.interactive = true;
 
   // *Create the farmer
-  farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 600);
+  farmer  = setSpriteProperties(new Sprite(id["farmer-v3.png"]), 0.5, 0.2, 640, 360);
   farmer = setupKeyboard(farmer);
   heartsContainer = createHearts(app);
+
+
+
+
+  // *Create the background
+  const bgTexture = PIXI.Texture.from('images/ground02.jpg');
+  let bgImages = [];
+
+  // *Create multiple instances of the background image and position them side by side
+  for (let i = 0; i < 4; i++) {
+    let bgImage = new Sprite(bgTexture);
+    bgImage.width = app.screen.width;
+    bgImage.height = app.screen.height;
+    bgImage.anchor.set(0.5, 0.5);
+    bgImage.position.set(app.screen.width * i, app.screen.height * i);
+    bgImages.push(bgImage);
+  }
+
+
+
+// *Adjust the position of the background images to make them seamless
+for (let i = 0; i < bgImages.length; i++) {
+  if (i == 0) {
+    continue;
+  }
+  let previousBg = bgImages[i - 1];
+  let currentBg = bgImages[i];
+  currentBg.x = previousBg.x + previousBg.width;
+  //currentBg.y = previousBg.y + previousBg.height;
+}
+
+// *Create a container to hold the background images
+backgroundContainer = new Container();
+
+//*Add the background images to the background container
+for(let i = 0; i < bgImages.length; i++) {
+  backgroundContainer.addChild(bgImages[i]);
+}
+
+
+
+gameScene.addChild(backgroundContainer);
+
+
+
+
+
+
+
+
+
 
   // *Scene management
   const mainMenu = new MainMenu({app, gameScene});
   gameOver = new GameOver(app);
   app.stage.addChild(mainMenu.menuScene);
-  gameScene.addChild(fieldbg);
+
   gameScene.addChild(farmer);
   gameScene.addChild(heartsContainer);
 
@@ -137,13 +173,12 @@ export function setup() {
   state = play;
   app.ticker.add(delta => gameLoop(delta));
 
+
+
 }
 /* #endregion */
 
 // ===================== END OF SETUP =====================
-
-
-
 
 /* #region Function gameLoop */
 // ! GAME LOOP
@@ -165,15 +200,19 @@ function gameLoop(delta) {
 /* #endregion */
 
 
-
-
 /* #region Function play*/
 // ! PLAY FUNCTION
 function play(delta) {
 
-  // *Farmer movement
-  farmer.x += farmer.vx;
-  farmer.y += farmer.vy;
+  // *Farmer movement since last frame
+  const farmerDeltaX = farmer.vx * delta;
+  const farmerDeltaY = farmer.vy * delta;
+
+  // *Move bg
+  backgroundContainer.x -= farmerDeltaX;
+  backgroundContainer.y -= farmerDeltaY;
+
+  wrap(backgroundContainer);
 
 
   // *Enemy Respawning
@@ -239,4 +278,39 @@ function play(delta) {
 // ! END FUNCTION
 function end() {
   scoreboard.resetScore();
+}
+
+function wrap(sprite) {
+  const padding = 0;
+  
+  // Check if the sprite is off-screen to the left
+  if (sprite.x + padding < -sprite.width) {
+    sprite.x = app.screen.width + sprite.width - padding;
+  }
+
+  // Check if the sprite is off-screen to the right
+  if (sprite.x - padding > app.screen.width) {
+    sprite.x = -sprite.width + padding;
+  }
+
+  // Check if the sprite is off-screen to the top
+  if (sprite.y + padding < -sprite.height) {
+    sprite.y = app.screen.height + sprite.height - padding;
+  }
+
+  // Check if the sprite is off-screen to the bottom
+  if (sprite.y - padding > app.screen.height) {
+    sprite.y = -sprite.height + padding;
+  }
+}
+
+function createBg(texture) {
+  let tiling = new PIXI.TilingSprite(texture, 1280, 720);
+  tiling.position.set(0, 0);
+  app.stage.addChild(tiling);
+  return tiling;
+}
+
+function menu() {
+
 }
