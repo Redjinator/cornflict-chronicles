@@ -33,17 +33,18 @@ export default class TitleScreen {
     startButton.position.set(app.view.width / 2, app.view.height / 2);
     this.titleScene.addChild(startButton);
 
+    this.music = new Audio('/audio/CreepyFX_LongTransition.mp3');
+    this.music.loop = false;
+    this.music.play();
+
     startButton.interactive = true;
     startButton.buttonMode = true;
     startButton.on('pointerdown', () => {
       let sound = new Audio('/audio/shot.mp3');
-      sound.play();
+      //sound.play();
+      this.music.pause();
       this.titleScene.visible = false;
       this.stateTransition(this.nextState);
     });
-
-    this.music = new Audio('/audio/CreepyFX_LongTransition.mp3');
-    this.music.loop = false;
-    this.music.play();
   }
 }

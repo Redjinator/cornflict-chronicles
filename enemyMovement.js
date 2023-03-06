@@ -1,7 +1,7 @@
 import { hitTestRectangle } from './collisions.js';
 import Victor from 'victor';
 
-export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene) {
+export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene) {
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
     let e = new Victor(enemy.x, enemy.y);
