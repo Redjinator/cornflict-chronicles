@@ -147,7 +147,7 @@ function gameLoop(delta) {
   }
 
   // Check state and hearts, if 0, end game
-  if ((currentState != end) && (heartsContainer.children.length == 0)) { currentState = end } 
+  if ((currentState != end) && (heartsContainer.children.length == 0)) { currentState = end, music.pause(); } 
 
   if (currentState === end && !gameOver.gameOverScene.parent) { // Check if game is over
     app.stage.addChild(gameOver.gameOverScene);
@@ -170,9 +170,8 @@ function play(delta) {
   updateBG(farmerDeltaX, farmerDeltaY);
   // Prevent offscreen movement when titleScreen is open
 
-  moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, enemySpeed, heartsContainer, gameScene);
+  moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
-  
 }
 
 function updateBG(farmerX, farmerY) {
