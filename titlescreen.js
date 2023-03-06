@@ -7,11 +7,11 @@ export default class TitleScreen {
     this.nextState = nextState;
 
     // *Just a black background for now, will replace later with a cool title screen
-    const graphics = new Graphics();
-    graphics.beginFill(0x000000);
-    graphics.drawRect(0, 0, app.view.width, app.view.height);
-    graphics.endFill();
-    this.titleScene.addChild(graphics);
+    const blackBG = new Graphics();
+    blackBG.beginFill(0x000000);
+    blackBG.drawRect(0, 0, app.view.width, app.view.height);
+    blackBG.endFill();
+    this.titleScene.addChild(blackBG);
 
     const titleText = new Text('Cornflict Chronicles', {
       fontFamily: 'Arial',

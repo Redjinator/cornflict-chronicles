@@ -1,9 +1,34 @@
-import { Container, Text, TextStyle } from 'pixi.js';
+import { Container, Text, TextStyle, Graphics} from 'pixi.js';
+import Scoreboard from './scoreboard';
 
 export default class GameOver {
-  constructor(app) {
+  constructor(app, scoreboard) {
     this.app = app;
     this.gameOverScene = new Container();
+    this.scoreboard = scoreboard;
+
+
+    // Display Score
+    this.finalScoreText = new PIXI.Text(`Final Score ${this.scoreboard}`, {
+      fontFamily: 'Arial',
+      fontSize: 24,
+      fill: 0xffffff,
+      align: 'center'
+      });
+
+    // Just a black background for now, will replace later with a cool gameover screen
+    const blackBG = new Graphics();
+    blackBG.beginFill(0x000000);
+    blackBG.drawRect(0, 0, app.view.width, app.view.height);
+    blackBG.endFill();
+    this.gameOverScene.addChild(blackBG);
+
+    
+    this.finalScoreText.anchor.set(0.5);
+    this.finalScoreText.x = this.app.screen.width / 2;
+    this.finalScoreText.y = this.app.screen.height / 2 - 50;
+    this.gameOverScene.addChild(this.finalScoreText);
+    
 
 
 

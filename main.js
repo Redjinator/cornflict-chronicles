@@ -21,6 +21,7 @@ import TitleScreen from './titlescreen.js';
 import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
 import { Timer } from './timer.js';
 
+
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
   resources = PIXI.Loader.shared.resources;
@@ -47,10 +48,11 @@ let titleScreen,
 
 let bullets = [];
 let enemies = [];
+let scoreToWin = 100;
 let bulletLimit =10;
 let numWaves = 5;
-let waveDelaySec = 5;
-let enemyCount = 10;
+let waveDelaySec = 20;
+let enemyCount = 50;
 let enemySpeed = 5;
 let bgBackground;
 let bgX = 0;
@@ -58,6 +60,7 @@ let bgY = 0;
 let currentState = null
 let timer;
 let timerText;
+
 
 
 // *Loader
@@ -77,6 +80,8 @@ export function setup() {
   // *Create the game scene
   gameScene = new Container();
   gameScene.visible = false;
+
+
 
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
@@ -142,6 +147,8 @@ export function setup() {
   gameScene.addChild(scoreboard.scoreboard);
   gameScene.setChildIndex(scoreboard.scoreboard, gameScene.children.length - 1);
 
+  
+
   // *Create Titlescreen
   titleScreen = new TitleScreen(app, startGame);
   app.stage.addChild(titleScreen.titleScene);
@@ -170,6 +177,8 @@ function gameLoop(delta) {
     music.pause();
   }
 
+  
+
 }
 
 
@@ -193,7 +202,7 @@ function play(delta) {
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
 
   // Check for score of 10
-  if ((currentState !== GameOverState) && scoreboard.score >= 10) {
+  if ((currentState !== GameOverState) && scoreboard.score >= scoreToWin) {
 
     // End game
     endGame();
@@ -212,10 +221,14 @@ function endGame() {
   console.log('endGame');
   timer.stop();
 
+  gameOver = new GameOver(app, scoreboard.score);
+  app.stage.addChild(gameOver.gameOverScene);
+
   scoreboard.resetScore();
   currentState = GameOverState;
 
-  app.stage.addChild(gameOver.gameOverScene);
+  farmer.visible = false;
+  gameOver.gameOverScene.visible = true;
 }
 
 //!States--------------------------------------------------------------
