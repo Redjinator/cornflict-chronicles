@@ -19,6 +19,7 @@ import { shoot } from './shoot.js';
 import { spawnEnemies } from './spawn.js';
 import TitleScreen from './titlescreen.js';
 import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
+import { Timer } from './timer.js';
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -54,7 +55,10 @@ let enemySpeed = 5;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
-let currentState = null;
+let currentState = null
+let timer;
+let timerText;
+
 
 // *Loader
 loader.onProgress.add(loadProgressHandler);
@@ -75,6 +79,19 @@ export function setup() {
   gameScene.visible = false;
 
   music = new Audio('/audio/music/InHeavyMetal.mp3');
+
+
+  timerText = new PIXI.Text('Time: 0', {
+    fontFamily: 'Arial',
+    fontSize: 24,
+    fill: 0xffffff,
+    align: 'left'
+  });
+
+  timerText.position.set(10, 10); // set the position of the timer text
+  gameScene.addChild(timerText); // add the timer text to the gameScene
+  timer = new Timer(timerText);
+
 
 
 
@@ -135,29 +152,31 @@ export function setup() {
 
   // *Start game loop
   app.ticker.add(delta => gameLoop(delta));
+  timer.start();
 }
 
 
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
 
+  // Update the current game state
   if (currentState === PlayState) {
-    // Call play function
     play(delta);
   }
 
-  // Check state and hearts, if 0, end game
-  if ((currentState != end) && (heartsContainer.children.length == 0)) { currentState = end, music.pause(); } 
-
-  if (currentState === end && !gameOver.gameOverScene.parent) { // Check if game is over
-    app.stage.addChild(gameOver.gameOverScene);
+  // Check hearts for game over
+  if (currentState !== GameOverState && heartsContainer.children.length == 0) {
+    endGame();
+    music.pause();
   }
+
 }
 
 
 // ! PLAY FUNCTION (run 60fps)
 function play(delta) {
 
+  // Play music
   if (!music.isPlaying) {
     music.play();
   }
@@ -172,6 +191,14 @@ function play(delta) {
 
   moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
+
+  // Check for score of 10
+  if ((currentState !== GameOverState) && scoreboard.score >= 10) {
+
+    // End game
+    endGame();
+    music.pause();
+  }
 }
 
 function updateBG(farmerX, farmerY) {
@@ -181,12 +208,14 @@ function updateBG(farmerX, farmerY) {
   bgBackground.tilePosition.y = bgY;
 }
 
+function endGame() {
+  console.log('endGame');
+  timer.stop();
 
-function end() {
   scoreboard.resetScore();
-  if(currentState === end && !gameOver.gameOverScene.parent) {
-    app.stage.addChild(gameOver.gameOverScene);
-  }
+  currentState = GameOverState;
+
+  app.stage.addChild(gameOver.gameOverScene);
 }
 
 //!States--------------------------------------------------------------

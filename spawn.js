@@ -13,7 +13,7 @@ export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, game
       } else {
         let enemy = new Enemy(id, speed, gameScene);
         let side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
-        let enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 50; // randomly choose a distance between 50 and the diagonal of the screen
+        let enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 500; // randomly choose a distance between 50 and the diagonal of the screen
 
         // Set the enemy's initial position based on the chosen side
         switch (side) {
@@ -38,7 +38,7 @@ export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, game
         console.log(`Enemy ${waveEnemies+1} spawned at x:${Math.ceil(enemy.x)} y:${Math.ceil(enemy.y)} with velocity vx:${Math.ceil(enemy.vx)} vy:${Math.ceil(enemy.vy)}`);
 
         gameScene.addChild(enemy);
-        enemies.push(enemy);
+        enemies.push(enemy); // I should make this clearer, this is the array of enemies that is currently in the game
         enemyCount++;
         waveEnemies++;
       }
