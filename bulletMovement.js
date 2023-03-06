@@ -15,6 +15,9 @@ export function moveBullets(bullets, enemies, scoreboard, gameScene, width, heig
                     gameScene.removeChild(bullet);
                     gameScene.removeChild(enemy);
                     enemies.splice(j, 1);
+                    let spawnSound = new Audio('/audio/dispel-wand-magic.mp3');
+                    spawnSound.volume = 1;
+                    spawnSound.play();
                     break;
                 }
             }

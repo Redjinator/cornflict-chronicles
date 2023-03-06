@@ -67,6 +67,7 @@ let timerText;
 loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/mvp-spritesheet.json')
+  .add('ecorn.png')
   .add('gameMusic', '/audio/music/InHeavyMetal.mp3')
   .add('shot', '/audio/shot.mp3')
   .load(setup);
@@ -75,17 +76,17 @@ loader
 // ! SETUP FUNCTION (run once)
 export function setup() {
 
-
-
-  // *Create the game scene
+  // Create the game scene
   gameScene = new Container();
   gameScene.visible = false;
 
+  // Attempt to fix the issue with the game scene running at double speed after restarting.
+  clearGameScene();
 
-
+  // Gameplay music baby
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
-
+  // Timer text
   timerText = new PIXI.Text('Time: 0', {
     fontFamily: 'Arial',
     fontSize: 24,
@@ -93,67 +94,65 @@ export function setup() {
     align: 'left'
   });
 
-  timerText.position.set(10, 10); // set the position of the timer text
-  gameScene.addChild(timerText); // add the timer text to the gameScene
+  // timer text position
+  timerText.position.set(width - 680, height - 550);
+
+  // add the timer text to the gameScene
+  gameScene.addChild(timerText);
+
+  // create the timer with the timer text
   timer = new Timer(timerText);
 
-
-
-
-
-  // *Alias for texture atlas frame id textures
+  // Alias for texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
 
   app.stage.interactive = true;
 
-  // *Create the farmer
+  // Create the farmer
   farmer  = createPlayer(id);
   gameScene.addChild(farmer);
 
-  // *Create the hearts container
+  // Create the hearts container
   heartsContainer = createHearts(app);
   gameScene.addChild(heartsContainer);
 
-  // *Create the background
+  // Create the background
   const bgTexture = PIXI.Texture.from('images/ground02.jpg');
   bgBackground = createBackground(bgTexture, app);
 
-  // *Scene management
+  // Scene management
   gameOver = new GameOver(app);
 
-
-  // *Rotate farmer to face mouse
-  app.stage.on('pointermove', (event) => {
+  app.stage.on('pointermove', (event) => {// Rotate farmer to face mouse
     farmer.rotation = Math.atan2(event.data.global.y - farmer.y, event.data.global.x - farmer.x);
   });
 
-  // *Creating Bullets (Move to shoot function?)
-  for (let i=0; i<bulletLimit; i++) {
+  for (let i=0; i<bulletLimit; i++) { // Creating Bullets (Move to shoot function?)
     let bullet = createBullet(id);
     bullets.push(bullet);
   }
 
-  // *Shooting Listener
-  app.stage.on('pointerdown', (event) => {
+  app.stage.on('pointerdown', (event) => {// Shooting Listener
     shoot(farmer, bullets, gameScene);
   });
 
-  // *Spawn enemies, numWaves, waveDelay, enemiesPerWave, speed, gameScene, enemies, id, app
-  spawnEnemies(numWaves, waveDelaySec, enemyCount, enemySpeed, gameScene, enemies, id, app, farmer);
+  // Spawn enemies with specifics for each wave
   
+  spawnEnemies(numWaves, waveDelaySec, enemyCount, enemySpeed, gameScene, enemies, id, app, farmer);
 
-  // *Create the scoreboard
+
+
+
+
+  // Create the scoreboard
   scoreboard = new Scoreboard();
   gameScene.addChild(scoreboard.scoreboard);
   gameScene.setChildIndex(scoreboard.scoreboard, gameScene.children.length - 1);
 
-  
-
-  // *Create Titlescreen
+  // Create Titlescreen
   titleScreen = new TitleScreen(app, startGame);
   app.stage.addChild(titleScreen.titleScene);
   currentState = TitleScreenState;
-
   app.stage.addChild(gameScene);
 
 
@@ -166,19 +165,16 @@ export function setup() {
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
 
-  // Update the current game state
-  if (currentState === PlayState) {
+  
+  
+  if (currentState === PlayState) {// Update the current game state
     play(delta);
   }
 
-  // Check hearts for game over
-  if (currentState !== GameOverState && heartsContainer.children.length == 0) {
+  if (currentState !== GameOverState && heartsContainer.children.length == 0) {// Check hearts for game over
     endGame();
     music.pause();
   }
-
-  
-
 }
 
 
@@ -198,8 +194,10 @@ function play(delta) {
   updateBG(farmerDeltaX, farmerDeltaY);
   // Prevent offscreen movement when titleScreen is open
 
+  
   moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
+  
 
   // Check for score of 10
   if ((currentState !== GameOverState) && scoreboard.score >= scoreToWin) {
@@ -221,7 +219,7 @@ function endGame() {
   console.log('endGame');
   timer.stop();
 
-  gameOver = new GameOver(app, scoreboard.score);
+  gameOver = new GameOver(app, scoreboard.score, startGame);
   app.stage.addChild(gameOver.gameOverScene);
 
   scoreboard.resetScore();
@@ -233,6 +231,11 @@ function endGame() {
 
 //!States--------------------------------------------------------------
 function startGame() {
+  
+  gameOver.gameOverScene.visible = false;
+  if(currentState === GameOverState) {
+    setup();
+  }
   stateTransition(PlayState);
 }
 
@@ -245,4 +248,8 @@ function stateTransition(nextState) {
 }
 
 
-
+function clearGameScene() {
+  gameScene.removeChildren();
+  bullets = [];
+  enemies = [];
+}

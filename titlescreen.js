@@ -11,12 +11,17 @@ export default class TitleScreen {
     blackBG.beginFill(0x000000);
     blackBG.drawRect(0, 0, app.view.width, app.view.height);
     blackBG.endFill();
-    this.titleScene.addChild(blackBG);
+    this.titleScene.addChild(blackBG); 
+
+    const titleImage = new Sprite(PIXI.Texture.from('/title.png'));
+    titleImage.anchor.set(0.5);
+    titleImage.position.set(app.view.width / 2, app.view.height / 2);
+    this.titleScene.addChild(titleImage);
 
     const titleText = new Text('Cornflict Chronicles', {
       fontFamily: 'Arial',
       fontSize: 36,
-      fill: 0xffffff,
+      fill: 0x000000,
       align: 'center',
     });
     titleText.position.set(app.view.width / 2, app.view.height / 4);
@@ -26,7 +31,7 @@ export default class TitleScreen {
     const startButton = new Text('START GAME', {
       fontFamily: 'Arial',
       fontSize: 24,
-      fill: 0xffffff,
+      fill: 0x000000,
       align: 'center',
     });
     startButton.anchor.set(0.5, 0.5);

@@ -1,12 +1,19 @@
 import { Container, Text, TextStyle, Graphics} from 'pixi.js';
-import Scoreboard from './scoreboard';
 
 export default class GameOver {
-  constructor(app, scoreboard) {
+  constructor(app, scoreboard, restartFunction) {
     this.app = app;
     this.gameOverScene = new Container();
     this.scoreboard = scoreboard;
+    this.restartFunction = restartFunction;
 
+
+    // Just a black background for now, will replace later with a cool gameover screen
+    const blackBG = new Graphics();
+    blackBG.beginFill(0x000000);
+    blackBG.drawRect(0, 0, app.view.width, app.view.height);
+    blackBG.endFill();
+    this.gameOverScene.addChild(blackBG);
 
     // Display Score
     this.finalScoreText = new PIXI.Text(`Final Score ${this.scoreboard}`, {
@@ -16,20 +23,10 @@ export default class GameOver {
       align: 'center'
       });
 
-    // Just a black background for now, will replace later with a cool gameover screen
-    const blackBG = new Graphics();
-    blackBG.beginFill(0x000000);
-    blackBG.drawRect(0, 0, app.view.width, app.view.height);
-    blackBG.endFill();
-    this.gameOverScene.addChild(blackBG);
-
-    
     this.finalScoreText.anchor.set(0.5);
     this.finalScoreText.x = this.app.screen.width / 2;
     this.finalScoreText.y = this.app.screen.height / 2 - 50;
     this.gameOverScene.addChild(this.finalScoreText);
-    
-
 
 
     // * Start Game Button Text
@@ -52,6 +49,8 @@ export default class GameOver {
 
     this.restartButton.on('pointerdown', () => {
       console.log("Restart Button Clicked");
+      this.app.stage.removeChild(this.gameOverScene);
+      restartFunction();
     });
 
   }
