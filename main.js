@@ -48,12 +48,12 @@ let titleScreen,
 
 let bullets = [];
 let enemies = [];
-let scoreToWin = 100;
+let scoreToWin = 50;
 let bulletLimit =10;
-let numWaves = 5;
-let waveDelaySec = 20;
+let numWaves = 10;
+let waveDelaySec = 10;
 let enemyCount = 50;
-let enemySpeed = 5;
+let enemySpeed = 6;
 let bgBackground;
 let bgX = 0;
 let bgY = 0;
@@ -112,7 +112,7 @@ export function setup() {
   gameScene.addChild(timerText);
 
   // create the timer with the timer text
-  timer = new Timer(timerText, app);
+  timer = new Timer(timerText, endGame);
 
   // Alias for texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -173,9 +173,6 @@ export function setup() {
 
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
-
-  
-  
   if (currentState === PlayState) {// Update the current game state
     play(delta);
   }
@@ -209,11 +206,11 @@ function play(delta) {
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
 
   // Check score for win
-  if ((currentState !== GameOverState) && scoreboard.score >= scoreToWin) {
+  if ((currentState !== GameOverState) && (scoreboard.score >= scoreToWin)) {
 
     // End game
     endGame();
-    music.pause();
+    
   }
 }
 
@@ -227,6 +224,7 @@ function updateBG(farmerX, farmerY) {
 function endGame() {
   gameOver = new GameOver(app, scoreboard.score, startGame);
   app.stage.addChild(gameOver.gameOverScene);
+  music.pause();
 
   scoreboard.resetScore();
   stateTransition(GameOverState);

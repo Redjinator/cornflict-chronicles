@@ -1,9 +1,9 @@
 export class Timer {
 
-  constructor(text, app) {
-    this.app = app;
+  constructor(text, endGame) {
+    this.endGame = endGame;
     this.text = text;
-    this.startTime = 20; // set initial time to 90 seconds
+    this.startTime = 125; // set initial time to 90 seconds
     this.currentTime = this.startTime;
     this.timerId = null; // id of the timer to see if it's running
   }
@@ -28,8 +28,8 @@ export class Timer {
       this.currentTime--; // count down instead of up
       this.updateText();
     } else {
-      // TODO - add game over state
       this.stop();
+      this.endGame();
     }
   }
 
