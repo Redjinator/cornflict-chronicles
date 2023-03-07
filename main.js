@@ -89,10 +89,21 @@ export function setup() {
   // Timer text
   timerText = new PIXI.Text('Time: 0', {
     fontFamily: 'Arial',
-    fontSize: 24,
-    fill: 0xffffff,
-    align: 'left'
+    fontSize: 36,
+    fill: "white",
+    stroke: 'orange',
+    strokeThickness: 4,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowBlur: 4,
+    dropShadowAngle: Math.PI / 6,
+    dropShadowDistance: 6,
+    wordWrap: true,
+    wordWrapWidth: 440
   });
+
+
+
 
   // timer text position
   timerText.position.set(width - 680, height - 550);
@@ -101,7 +112,7 @@ export function setup() {
   gameScene.addChild(timerText);
 
   // create the timer with the timer text
-  timer = new Timer(timerText);
+  timer = new Timer(timerText, app);
 
   // Alias for texture atlas frame id textures
   id = resources["images/mvp-spritesheet.json"].textures;
@@ -137,7 +148,6 @@ export function setup() {
   });
 
   // Spawn enemies with specifics for each wave
-  
   spawnEnemies(numWaves, waveDelaySec, enemyCount, enemySpeed, gameScene, enemies, id, app, farmer);
 
 
@@ -158,7 +168,6 @@ export function setup() {
 
   // *Start game loop
   app.ticker.add(delta => gameLoop(delta));
-  timer.start();
 }
 
 
@@ -186,20 +195,20 @@ function play(delta) {
     music.play();
   }
 
+
+
   // Farmer movement since last frame
   const farmerDeltaX = farmer.vx * delta;
   const farmerDeltaY = farmer.vy * delta;
 
   // Moves the bg with the farmer
   updateBG(farmerDeltaX, farmerDeltaY);
-  // Prevent offscreen movement when titleScreen is open
 
-  
+  // Movement of Enemies and bullets, and collision detection
   moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
-  
 
-  // Check for score of 10
+  // Check score for win
   if ((currentState !== GameOverState) && scoreboard.score >= scoreToWin) {
 
     // End game
@@ -216,14 +225,11 @@ function updateBG(farmerX, farmerY) {
 }
 
 function endGame() {
-  console.log('endGame');
-  timer.stop();
-
   gameOver = new GameOver(app, scoreboard.score, startGame);
   app.stage.addChild(gameOver.gameOverScene);
 
   scoreboard.resetScore();
-  currentState = GameOverState;
+  stateTransition(GameOverState);
 
   farmer.visible = false;
   gameOver.gameOverScene.visible = true;
@@ -231,7 +237,7 @@ function endGame() {
 
 //!States--------------------------------------------------------------
 function startGame() {
-  
+
   gameOver.gameOverScene.visible = false;
   if(currentState === GameOverState) {
     setup();
@@ -241,6 +247,7 @@ function startGame() {
 
 function stateTransition(nextState) {
   console.log(`Moving from ${currentState.name} to ${nextState.name}`);
+  nextState === PlayState ? timer.start() : timer.stop();
   currentState = nextState;
   titleScreen.titleScene.visible = currentState === TitleScreenState;
   gameScene.visible = currentState === PlayState;
