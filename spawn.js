@@ -1,5 +1,6 @@
 import { Enemy } from './enemy.js';
 
+
 export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, gameScene, enemies, id, app, farmer) {
   let enemyCount = 0;
 

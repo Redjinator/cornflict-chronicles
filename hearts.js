@@ -20,7 +20,7 @@ export function createHearts(app) {
     // Add the hearts to the container
     for (let i = 0; i < maxHearts; i++) {
         const heart = new Sprite(heartTexture);
-        heart.scale.set(0.2); // Set the size of the heart
+        heart.scale.set(0.4); // Set the size of the heart
         heart.x = i * (heart.width + 10); // Position each heart
         heartsContainer.addChild(heart); // Add the heart to the container
     }

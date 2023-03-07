@@ -15,7 +15,7 @@ export default class GameOver {
     blackBG.endFill();
     this.gameOverScene.addChild(blackBG);
 
-    // Display Score
+    // Display Score Text
     this.finalScoreText = new PIXI.Text(`Final Score ${this.scoreboard}`, {
       fontFamily: 'Arial',
       fontSize: 24,

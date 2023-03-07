@@ -6,6 +6,7 @@ Modified: 2023-04-03
 */
 
 import Scoreboard from './scoreboard.js';
+import TitleScreen from './titlescreen.js';
 import GameOver from './gameover.js';
 import { Container } from 'pixi.js';
 import { createHearts } from './hearts.js';
@@ -17,10 +18,8 @@ import { createBullet } from './bullet.js';
 import { moveBullets } from './bulletMovement.js';
 import { shoot } from './shoot.js';
 import { spawnEnemies } from './spawn.js';
-import TitleScreen from './titlescreen.js';
 import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
 import { Timer } from './timer.js';
-
 
 const Application = PIXI.Application,
       loader      = PIXI.Loader.shared,
@@ -44,7 +43,10 @@ let titleScreen,
     id,
     scoreboard,
     heartsContainer,
-    music;
+    music,
+    timer,
+    timerText,
+    bgBackground;
 
 let bullets = [];
 let enemies = [];
@@ -54,21 +56,15 @@ let numWaves = 5;
 let waveDelaySec = 10;
 let enemyCount = 50;
 let enemySpeed = 6;
-let bgBackground;
 let bgX = 0;
 let bgY = 0;
 let currentState = null
-let timer;
-let timerText;
 
 
-
-// *Loader
+// Loader
 loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/mvp-spritesheet.json')
-  .add('gameMusic', '/audio/music/InHeavyMetal.mp3')
-  .add('shot', '/audio/shot.mp3')
   .load(setup);
 
 
@@ -86,7 +82,7 @@ export function setup() {
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
   // Timer text
-  timerText = new PIXI.Text('Time: 0', {
+  timerText = new PIXI.Text('Time: 125', {
     fontFamily: 'Arial',
     fontSize: 36,
     fill: "white",
@@ -101,13 +97,8 @@ export function setup() {
     wordWrapWidth: 440
   });
 
-
-
-
   // timer text position
-  timerText.position.set(width - 680, height - 550);
-
-  // add the timer text to the gameScene
+  timerText.position.set(width - 200, height - 700);
   gameScene.addChild(timerText);
 
   // create the timer with the timer text
@@ -124,39 +115,38 @@ export function setup() {
 
   // Create the hearts container
   heartsContainer = createHearts(app);
+  heartsContainer.position.set(10, 10);
   gameScene.addChild(heartsContainer);
 
   // Create the background
   const bgTexture = PIXI.Texture.from('images/ground01.jpg');
   bgBackground = createBackground(bgTexture, app);
 
-  // Scene management
+  // Create game over screen
   gameOver = new GameOver(app);
 
-  app.stage.on('pointermove', (event) => {// Rotate farmer to face mouse
+  // Rotate farmer to face mouse
+  app.stage.on('pointermove', (event) => {
     farmer.rotation = Math.atan2(event.data.global.y - farmer.y, event.data.global.x - farmer.x);
   });
 
-  for (let i=0; i<bulletLimit; i++) { // Creating Bullets (Move to shoot function?)
+  // Creating Bullets
+  for (let i=0; i<bulletLimit; i++) {
     let bullet = createBullet(id);
     bullets.push(bullet);
   }
 
-  app.stage.on('pointerdown', (event) => {// Shooting Listener
+  // Shooting Listener
+  app.stage.on('pointerdown', (event) => {
     shoot(farmer, bullets, gameScene);
   });
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(numWaves, waveDelaySec, enemyCount, enemySpeed, gameScene, enemies, id, app, farmer);
 
-
-
-
-
   // Create the scoreboard
   scoreboard = new Scoreboard();
   gameScene.addChild(scoreboard.scoreboard);
-  gameScene.setChildIndex(scoreboard.scoreboard, gameScene.children.length - 1);
 
   // Create Titlescreen
   titleScreen = new TitleScreen(app, startGame, id);
@@ -164,21 +154,24 @@ export function setup() {
   currentState = TitleScreenState;
   app.stage.addChild(gameScene);
 
-
-  // *Start game loop
+  // Start game loop
   app.ticker.add(delta => gameLoop(delta));
 }
 
 
+
 // ! GAME LOOP (run 60fps)
 function gameLoop(delta) {
-  if (currentState === PlayState) {// Update the current game state
-    play(delta);
-  }
 
-  if (currentState !== GameOverState && heartsContainer.children.length == 0) {// Check hearts for game over
+  // Update the current game state
+  if (currentState === PlayState) { play(delta) }
+
+  // Check for 0 hearts (game over)
+  if (currentState !== GameOverState && heartsContainer.children.length == 0) {
+
     endGame();
     music.pause();
+
     let gameOverMusic = new Audio('/audio/game-over.mp3');
     gameOverMusic.loop = false;
     gameOverMusic.play();
@@ -194,8 +187,6 @@ function play(delta) {
     music.play();
   }
 
-
-
   // Farmer movement since last frame
   const farmerDeltaX = farmer.vx * delta;
   const farmerDeltaY = farmer.vy * delta;
@@ -207,15 +198,15 @@ function play(delta) {
   moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
   moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
 
+
   // Check score for win
   if ((currentState !== GameOverState) && (scoreboard.score >= scoreToWin)) {
 
-    // End game
-    endGame();
-    
+    endGame(); // End game
   }
 }
 
+// Move tiling background based on farmer movement input
 function updateBG(farmerX, farmerY) {
   bgX -= farmerX;
   bgY -= farmerY;
@@ -223,6 +214,7 @@ function updateBG(farmerX, farmerY) {
   bgBackground.tilePosition.y = bgY;
 }
 
+// ! END GAME FUNCTION
 function endGame() {
   gameOver = new GameOver(app, scoreboard.score, startGame);
   app.stage.addChild(gameOver.gameOverScene);
@@ -235,7 +227,7 @@ function endGame() {
   gameOver.gameOverScene.visible = true;
 }
 
-//!States--------------------------------------------------------------
+// ! START GAME FUNCTION
 function startGame() {
 
   gameOver.gameOverScene.visible = false;
@@ -245,6 +237,7 @@ function startGame() {
   stateTransition(PlayState);
 }
 
+// !  STATE TRANSITION
 function stateTransition(nextState) {
   console.log(`Moving from ${currentState.name} to ${nextState.name}`);
   nextState === PlayState ? timer.start() : timer.stop();
@@ -253,7 +246,6 @@ function stateTransition(nextState) {
   gameScene.visible = currentState === PlayState;
   gameOver.gameOverScene.visible = currentState === GameOverState;
 }
-
 
 function clearGameScene() {
   gameScene.removeChildren();

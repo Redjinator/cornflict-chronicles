@@ -5,7 +5,7 @@ export default class Scoreboard {
         this.score = 0;
         this.scoreboard = new Text("Score: " + this.score, scoreBoardStyle);
         this.scoreboard.anchor.set(0.5, 0.5);
-        this.scoreboard.position.set(1280 / 2, 100);
+        this.scoreboard.position.set(1280 / 2, 48);
     }
 
     increaseScore() {
