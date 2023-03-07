@@ -2,7 +2,7 @@
 Author: Reginald McPherson
 Student ID: 0136897
 Course: DGL-209 Capstone Project
-Modified: 2023-04-03
+Modified: 2023-03-06
 */
 
 import Scoreboard from './scoreboard.js';
