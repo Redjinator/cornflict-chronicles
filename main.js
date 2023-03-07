@@ -50,7 +50,7 @@ let bullets = [];
 let enemies = [];
 let scoreToWin = 50;
 let bulletLimit =10;
-let numWaves = 10;
+let numWaves = 5;
 let waveDelaySec = 10;
 let enemyCount = 50;
 let enemySpeed = 6;
@@ -67,7 +67,6 @@ let timerText;
 loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/mvp-spritesheet.json')
-  .add('ecorn.png')
   .add('gameMusic', '/audio/music/InHeavyMetal.mp3')
   .add('shot', '/audio/shot.mp3')
   .load(setup);
