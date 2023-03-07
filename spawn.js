@@ -37,7 +37,6 @@ export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, game
 
         // sound when spawning
 
-        console.log('spawned enemy');
         gameScene.addChild(enemy);
         enemies.push(enemy); // I should make this clearer, this is the array of enemies that is currently in the game
         enemyCount++;
