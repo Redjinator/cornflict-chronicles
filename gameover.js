@@ -29,6 +29,8 @@ export default class GameOver {
     this.gameOverScene.addChild(this.finalScoreText);
 
 
+
+
     // * Start Game Button Text
     // *=================================================
     this.restartButton = new Text("RESTART");

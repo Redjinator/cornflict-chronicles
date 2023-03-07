@@ -23,8 +23,8 @@ import { Timer } from './timer.js';
 
 
 const Application = PIXI.Application,
-  loader = PIXI.Loader.shared,
-  resources = PIXI.Loader.shared.resources;
+      loader      = PIXI.Loader.shared,
+      resources   = PIXI.Loader.shared.resources;
 
 const app = new Application({
   width: 1280,
@@ -128,7 +128,7 @@ export function setup() {
   gameScene.addChild(heartsContainer);
 
   // Create the background
-  const bgTexture = PIXI.Texture.from('images/ground02.jpg');
+  const bgTexture = PIXI.Texture.from('images/ground01.jpg');
   bgBackground = createBackground(bgTexture, app);
 
   // Scene management
@@ -160,7 +160,7 @@ export function setup() {
   gameScene.setChildIndex(scoreboard.scoreboard, gameScene.children.length - 1);
 
   // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame);
+  titleScreen = new TitleScreen(app, startGame, id);
   app.stage.addChild(titleScreen.titleScene);
   currentState = TitleScreenState;
   app.stage.addChild(gameScene);
@@ -180,6 +180,9 @@ function gameLoop(delta) {
   if (currentState !== GameOverState && heartsContainer.children.length == 0) {// Check hearts for game over
     endGame();
     music.pause();
+    let gameOverMusic = new Audio('/audio/game-over.mp3');
+    gameOverMusic.loop = false;
+    gameOverMusic.play();
   }
 }
 

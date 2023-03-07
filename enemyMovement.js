@@ -10,6 +10,17 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsC
     let v = d.normalize().multiplyScalar(enemy.speed);
     enemy.position.set(enemy.position.x + v.x - farmerDeltaX, enemy.position.y + v.y - farmerDeltaY);
 
+    const playerPos = {x: farmer.x, y: farmer.y};
+    const enemyPos = {x: enemy.x, y: enemy.y};
+
+    // Calculate the angle between the player and the enemy
+    const dx = playerPos.x - enemyPos.x;
+    const dy = playerPos.y - enemyPos.y;
+    const angle = Math.atan2(dy, dx);
+
+    // Rotate the enemy towrds the player
+    enemy.rotation = angle + Math.PI * 1.5;
+
     if (hitTestRectangle(farmer, enemy)) {
       gameScene.removeChild(enemy);
       enemies.splice(i, 1);
