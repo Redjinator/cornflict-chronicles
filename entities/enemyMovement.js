@@ -1,10 +1,17 @@
 import { hitTestRectangle } from '../helpers/collisions.js';
 import Victor from 'victor';
 import { rotateTowards } from '../helpers/rotateTowards.js';
+import * as PIXI from 'pixi.js';
 
 export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene) {
 
-  
+  const redFlash = new PIXI.Graphics();
+  redFlash.beginFill(0xFF0000);
+  redFlash.drawRect(0, 0, 1280, 720);
+  redFlash.endFill();
+  redFlash.alpha = 0.0;
+  gameScene.addChild(redFlash);
+
 
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
@@ -26,7 +33,7 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsC
     enemy.rotation = angle + Math.PI * 1.5;
 
     if (hitTestRectangle(farmer, enemy)) {
-      playOuchSounds()
+      playOuchSounds(redFlash)
       gameScene.removeChild(enemy);
       enemies.splice(i, 1);
       heartsContainer.removeChildAt(heartsContainer.children.length - 1);
@@ -34,9 +41,10 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsC
     }
   }
 
-  function playOuchSounds() {
+  function playOuchSounds(flash) {
     let ouch1 = new Audio('audio/ouch-1a.mp3');
     let ouch2 = new Audio('audio/ouch-2a.mp3');
+
     if(Math.random() > 0.5) {
       ouch1.play();
       console.log('ouch1');
@@ -44,5 +52,12 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsC
       ouch2.play();
       console.log('ouch2');
     }
+
+    redFlash.alpha = 0.5;
+    gameScene.addChild(flash);
+    setTimeout(() => {
+      gameScene.removeChild(flash);
+      redFlash.alpha = 0.0;
+    }, 200);
   }
 }
