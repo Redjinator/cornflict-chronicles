@@ -1,4 +1,4 @@
-import { setSpriteProperties } from './spriteProperties.js';
+import { setSpriteProperties } from '../helpers/spriteProperties.js';
 import { Sprite } from 'pixi.js';
 
 export class Enemy extends Sprite {

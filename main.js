@@ -2,25 +2,26 @@
 Author: Reginald McPherson
 Student ID: 0136897
 Course: DGL-209 Capstone Project
-Modified: 2023-03-06
+Modified: 2023-03-015
 */
 
-import Scoreboard from './scoreboard.js';
-import TitleScreen from './titlescreen.js';
-import GameOver from './gameover.js';
+import { config } from './config.js';
+import Scoreboard from './scenes/scoreboard.js';
+import TitleScreen from './scenes/titlescreen.js';
+import GameOver from './scenes/gameover.js';
 import { Container } from 'pixi.js';
-import { createHearts } from './hearts.js';
-import { loadProgressHandler } from './functions/loadProgress.js';
-import { createBackground } from './createBackground.js';
-import { createPlayer } from './player.js';
-import { moveEnemies } from './enemyMovement.js';
-import { createBullet } from './bullet.js';
-import { moveBullets } from './bulletMovement.js';
-import { shoot } from './shoot.js';
-import { spawnEnemies } from './spawn.js';
-import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
-import { Timer } from './timer.js';
-import { rotateTowards } from './functions/rotateTowards.js';
+import { createHearts } from './entities/hearts.js';
+import { loadProgressHandler } from './helpers/loadProgress.js';
+import { createBackground } from './helpers/createBackground.js';
+import { createPlayer } from './entities/player.js';
+import { moveEnemies } from './entities/enemyMovement.js';
+import { createBullet } from './entities/bullet.js';
+import { moveBullets } from './entities/bulletMovement.js';
+import { shoot } from './entities/shoot.js';
+import { spawnEnemies } from './entities/spawn.js';
+import { TitleScreenState, PlayState, GameOverState } from './helpers/stateMachine.js';
+import { Timer } from './helpers/timer.js';
+import { rotateTowards } from './helpers/rotateTowards.js';
 
 const Application = PIXI.Application,
       loader      = PIXI.Loader.shared,
@@ -51,12 +52,6 @@ let titleScreen,
 
 let bullets;
 let enemies;
-let scoreToWin;
-let bulletLimit;
-let numWaves;
-let waveDelaySec;
-let enemyCount;
-let enemySpeed;
 let bgX;
 let bgY;
 let currentState;
@@ -76,17 +71,11 @@ export function setup() {
 
   bullets = [];
   enemies = [];
-  scoreToWin = 50;
-  bulletLimit =10;
-  numWaves = 5;
-  waveDelaySec = 10;
-  enemyCount = 50;
-  enemySpeed = 6;
   bgX = 0;
   bgY = 0;
   farmerDeltaX = 0;
   farmerDeltaY = 0;
-  //currentState = null
+
 
   // Create the game scene
   gameScene = new Container();
@@ -148,7 +137,7 @@ export function setup() {
   });
 
   // Creating Bullets
-  for (let i=0; i<bulletLimit; i++) {
+  for (let i=0; i<config.bulletLimit; i++) {
     let bullet = createBullet(id);
     bullets.push(bullet);
   }
@@ -159,7 +148,7 @@ export function setup() {
   });
 
   // Spawn enemies with specifics for each wave
-  spawnEnemies(numWaves, waveDelaySec, enemyCount, enemySpeed, gameScene, enemies, id, app, farmer);
+  spawnEnemies(config.numWaves, config.waveDelaySec, config.enemyCount, config.enemySpeed, gameScene, enemies, id, app, farmer);
 
   // Create the scoreboard
   scoreboard = new Scoreboard();
@@ -219,7 +208,7 @@ function play(delta) {
 
 
   // Check score for win
-  if ((currentState !== GameOverState) && (scoreboard.score >= scoreToWin)) {
+  if ((currentState !== GameOverState) && (scoreboard.score >= config.scoreToWin)) {
 
     endGame(); // End game
   }

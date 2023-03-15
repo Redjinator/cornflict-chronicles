@@ -1,4 +1,4 @@
-import { setSpriteProperties } from './spriteProperties.js';
+import { setSpriteProperties } from '../helpers/spriteProperties.js';
 import { setupKeyboard } from './keyboardMovement.js';
 import { Sprite } from 'pixi.js';
 

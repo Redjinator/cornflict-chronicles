@@ -1,4 +1,4 @@
-import { hitTestRectangle } from "./collisions";
+import { hitTestRectangle } from "../helpers/collisions";
 
 export function moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY) {
     for (let i=0; i<bullets.length; i++) {
