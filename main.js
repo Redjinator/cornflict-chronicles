@@ -10,7 +10,7 @@ import TitleScreen from './titlescreen.js';
 import GameOver from './gameover.js';
 import { Container } from 'pixi.js';
 import { createHearts } from './hearts.js';
-import { loadProgressHandler } from './loadProgress.js';
+import { loadProgressHandler } from './functions/loadProgress.js';
 import { createBackground } from './createBackground.js';
 import { createPlayer } from './player.js';
 import { moveEnemies } from './enemyMovement.js';
@@ -20,6 +20,7 @@ import { shoot } from './shoot.js';
 import { spawnEnemies } from './spawn.js';
 import { TitleScreenState, PlayState, GameOverState } from './stateMachine.js';
 import { Timer } from './timer.js';
+import { rotateTowards } from './functions/rotateTowards.js';
 
 const Application = PIXI.Application,
       loader      = PIXI.Loader.shared,
@@ -48,17 +49,19 @@ let titleScreen,
     timerText,
     bgBackground;
 
-let bullets = [];
-let enemies = [];
-let scoreToWin = 50;
-let bulletLimit =10;
-let numWaves = 5;
-let waveDelaySec = 10;
-let enemyCount = 50;
-let enemySpeed = 6;
-let bgX = 0;
-let bgY = 0;
-let currentState = null
+let bullets;
+let enemies;
+let scoreToWin;
+let bulletLimit;
+let numWaves;
+let waveDelaySec;
+let enemyCount;
+let enemySpeed;
+let bgX;
+let bgY;
+let currentState;
+let farmerDeltaX;
+let farmerDeltaY;
 
 
 // Loader
@@ -70,6 +73,20 @@ loader
 
 // ! SETUP FUNCTION (run once)
 export function setup() {
+
+  bullets = [];
+  enemies = [];
+  scoreToWin = 50;
+  bulletLimit =10;
+  numWaves = 5;
+  waveDelaySec = 10;
+  enemyCount = 50;
+  enemySpeed = 6;
+  bgX = 0;
+  bgY = 0;
+  farmerDeltaX = 0;
+  farmerDeltaY = 0;
+  //currentState = null
 
   // Create the game scene
   gameScene = new Container();
@@ -127,7 +144,7 @@ export function setup() {
 
   // Rotate farmer to face mouse
   app.stage.on('pointermove', (event) => {
-    farmer.rotation = Math.atan2(event.data.global.y - farmer.y, event.data.global.x - farmer.x);
+    farmer.rotation = rotateTowards(event, farmer);
   });
 
   // Creating Bullets
@@ -156,6 +173,7 @@ export function setup() {
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
+
 }
 
 
@@ -171,6 +189,7 @@ function gameLoop(delta) {
 
     endGame();
     music.pause();
+    
 
     let gameOverMusic = new Audio('/audio/game-over.mp3');
     gameOverMusic.loop = false;
@@ -188,8 +207,8 @@ function play(delta) {
   }
 
   // Farmer movement since last frame
-  const farmerDeltaX = farmer.vx * delta;
-  const farmerDeltaY = farmer.vy * delta;
+  farmerDeltaX = farmer.vx * delta;
+  farmerDeltaY = farmer.vy * delta;
 
   // Moves the bg with the farmer
   updateBG(farmerDeltaX, farmerDeltaY);
@@ -208,10 +227,8 @@ function play(delta) {
 
 // Move tiling background based on farmer movement input
 function updateBG(farmerX, farmerY) {
-  bgX -= farmerX;
-  bgY -= farmerY;
-  bgBackground.tilePosition.x = bgX;
-  bgBackground.tilePosition.y = bgY;
+  bgBackground.tilePosition.x -= farmerX;
+  bgBackground.tilePosition.y -= farmerY;
 }
 
 // ! END GAME FUNCTION
@@ -232,7 +249,7 @@ function startGame() {
 
   gameOver.gameOverScene.visible = false;
   if(currentState === GameOverState) {
-    setup();
+    setup()
   }
   stateTransition(PlayState);
 }

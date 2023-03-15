@@ -1,5 +1,5 @@
 
-export function setupKeyboard(farmer) {
+export function setupKeyboard(player) {
 
     const left  = keyboard(65),
           up    = keyboard(87),
@@ -9,124 +9,124 @@ export function setupKeyboard(farmer) {
     //Left arrow key `press` method
     left.press = () => {
     if (up.isDown) {
-    farmer.vx = -5;
-    farmer.vy = -5;
+    player.vx = -5;
+    player.vy = -5;
     } else if (down.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 5;
+    player.vx = -5;
+    player.vy = 5;
     } else {
-    farmer.vx = -5;
-    farmer.vy = 0;
+    player.vx = -5;
+    player.vy = 0;
     }
     };
 
     left.release = () => {
     if (!right.isDown && !up.isDown && !down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
+    player.vx = 0;
+    player.vy = 0;
     } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 0;
+    player.vx = 5;
+    player.vy = 0;
     } else if (up.isDown) {
-    farmer.vx = 0;
-    farmer.vy = -5;
+    player.vx = 0;
+    player.vy = -5;
     } else if (down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 5;
+    player.vx = 0;
+    player.vy = 5;
     }
     };
 
     //Up
     up.press = () => {
     if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = -5;
+    player.vx = -5;
+    player.vy = -5;
     } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = -5;
+    player.vx = 5;
+    player.vy = -5;
     } else {
-    farmer.vx = 0;
-    farmer.vy = -5;
+    player.vx = 0;
+    player.vy = -5;
     }
     };
 
     up.release = () => {
     if (!down.isDown && !left.isDown && !right.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
+    player.vx = 0;
+    player.vy = 0;
     } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 0;
+    player.vx = 5;
+    player.vy = 0;
     } else if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 0;
+    player.vx = -5;
+    player.vy = 0;
     } else if (down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 5;
+    player.vx = 0;
+    player.vy = 5;
     }
     };
 
     //Right
     right.press = () => {
     if (up.isDown) {
-    farmer.vx = 5;
-    farmer.vy = -5;
+    player.vx = 5;
+    player.vy = -5;
     } else if (down.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 5;
+    player.vx = 5;
+    player.vy = 5;
     } else {
-    farmer.vx = 5;
-    farmer.vy = 0;
+    player.vx = 5;
+    player.vy = 0;
     }
     };
 
     right.release = () => {
     if (!left.isDown && !up.isDown && !down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
+    player.vx = 0;
+    player.vy = 0;
     } else if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 0;
+    player.vx = -5;
+    player.vy = 0;
     } else if (up.isDown) {
-    farmer.vx = 0;
-    farmer.vy = -5;
+    player.vx = 0;
+    player.vy = -5;
     } else if (down.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 5;
+    player.vx = 0;
+    player.vy = 5;
     }
     };
 
     //Down
     down.press = () => {
     if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 5;
+    player.vx = -5;
+    player.vy = 5;
     } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 5;
+    player.vx = 5;
+    player.vy = 5;
     } else {
-    farmer.vx = 0;
-    farmer.vy = 5;
+    player.vx = 0;
+    player.vy = 5;
     }
     };
 
     down.release = () => {
     if (!up.isDown && !left.isDown && !right.isDown) {
-    farmer.vx = 0;
-    farmer.vy = 0;
+    player.vx = 0;
+    player.vy = 0;
     } else if (right.isDown) {
-    farmer.vx = 5;
-    farmer.vy = 0;
+    player.vx = 5;
+    player.vy = 0;
     } else if (left.isDown) {
-    farmer.vx = -5;
-    farmer.vy = 0;
+    player.vx = -5;
+    player.vy = 0;
     } else if (up.isDown) {
-    farmer.vx = 0;
-    farmer.vy = -5;
+    player.vx = 0;
+    player.vy = -5;
     }
     };
 
-    return farmer;
+    return player;
 }
 
 function keyboard(keyCode) {
@@ -147,7 +147,7 @@ function keyboard(keyCode) {
       }
       event.preventDefault();
     };
-  
+
     //The `upHandler`
     key.upHandler = (event) => {
       if (event.keyCode === key.code) {
@@ -159,7 +159,7 @@ function keyboard(keyCode) {
       }
       event.preventDefault();
     };
-  
+
     //Attach event listeners
     window.addEventListener("keydown", key.downHandler.bind(key), false);
     window.addEventListener("keyup", key.upHandler.bind(key), false);

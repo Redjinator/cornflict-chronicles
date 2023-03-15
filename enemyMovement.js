@@ -1,5 +1,6 @@
 import { hitTestRectangle } from './collisions.js';
 import Victor from 'victor';
+import { rotateTowards } from './functions/rotateTowards.js';
 
 export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene) {
 
