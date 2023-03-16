@@ -75,27 +75,31 @@ function createGameObjects() {
   bgBackground = createBackground(PIXI.Texture.from('images/ground01.jpg'), app);
 }
 
-// ! SETUP FUNCTION (run once)
-export function setup() {
-
+function initializeVariables() {
   bullets = [];
   enemies = [];
   bgX = 0;
   bgY = 0;
   farmerDeltaX = 0;
   farmerDeltaY = 0;
+  currentState = TitleScreenState;
+}
 
+// ! SETUP FUNCTION (run once)
+export function setup() {
 
-  // Create the game scene
+  // Initialize variables
+  initializeVariables();
+
+  // Game scenes
   gameScene = new Container();
   gameScene.visible = false;
 
-  // Attempt to fix the issue with the game scene running at double speed after restarting.
-  clearGameScene();
+    // Create game over screen
+  gameOver = new GameOver(app);
 
-  // Gameplay music baby
+  // Gameplay Music
   music = new Audio('/audio/music/InHeavyMetal.mp3');
-
 
   // Timer
   createTimerText();
@@ -104,42 +108,11 @@ export function setup() {
   // Game objects
   createGameObjects();
 
-  // Alias for texture atlas frame id textures
-  //id = resources["images/mvp-spritesheet.json"].textures;
-
-  app.stage.interactive = true;
-
-  // Create the farmer
-  //farmer  = createPlayer(id);
-  //gameScene.addChild(farmer);
-
-  // Create the hearts container
-/*   heartsContainer = createHearts(app);
-  heartsContainer.position.set(10, 10);
-  gameScene.addChild(heartsContainer); */
-
-  // Create the background
-  const bgTexture = PIXI.Texture.from('images/ground01.jpg');
-  bgBackground = createBackground(bgTexture, app);
-
-  // Create game over screen
-  gameOver = new GameOver(app);
-
-  // Rotate farmer to face mouse
-  app.stage.on('pointermove', (event) => {
-    farmer.rotation = rotateTowards(event, farmer);
-  });
+  // Setup event listeners
+  setupEventListeners();
 
   // Creating Bullets
-  for (let i=0; i<config.bulletLimit; i++) {
-    let bullet = createBullet(id);
-    bullets.push(bullet);
-  }
-
-  // Shooting Listener
-  app.stage.on('pointerdown', (event) => {
-    shoot(farmer, bullets, gameScene);
-  });
+  createBullets(10, id);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(config.numWaves, config.waveDelaySec, config.enemyCount, config.enemySpeed, gameScene, enemies, id, app, farmer);
@@ -151,34 +124,25 @@ export function setup() {
   // Create Titlescreen
   titleScreen = new TitleScreen(app, startGame, id);
   app.stage.addChild(titleScreen.titleScene);
-  currentState = TitleScreenState;
   app.stage.addChild(gameScene);
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
-
 }
 
 
 
-// ! GAME LOOP (run 60fps)
+// !Game Loop
 function gameLoop(delta) {
-
-  // Update the current game state
   if (currentState === PlayState) { play(delta) }
 
   // Check for 0 hearts (game over)
   if (currentState !== GameOverState && heartsContainer.children.length == 0) {
-
     endGame();
-    music.pause();
-    
-
-    let gameOverMusic = new Audio('/audio/game-over.mp3');
-    gameOverMusic.loop = false;
-    gameOverMusic.play();
+    playGameOverMusic();
   }
 }
+
 
 
 // ! PLAY FUNCTION (run 60fps)
@@ -271,4 +235,32 @@ function createTimerText() {
   });
   timerText.position.set(width - 200, height - 700);
   gameScene.addChild(timerText);
+}
+
+function setupEventListeners() {
+
+  app.stage.interactive = true;
+
+  app.stage.on('pointermove', (event) => {
+    farmer.rotation = rotateTowards(event, farmer);
+  });
+
+  app.stage.on('pointerdown', (event) => {
+    shoot(farmer, bullets, gameScene);
+  });
+}
+
+function createBullets(bulletLimit, id) {
+  for (let i = 0; i < bulletLimit; i++) {
+    let bullet = createBullet(id);
+    bullets.push(bullet);
+  }
+}
+
+function playGameOverMusic() {
+  music.pause();
+
+  let gameOverMusic = new Audio('/audio/game-over.mp3');
+  gameOverMusic.loop = false;
+  gameOverMusic.play();
 }
