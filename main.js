@@ -65,6 +65,15 @@ loader
   .add('images/mvp-spritesheet.json')
   .load(setup);
 
+function createGameObjects() {
+  id = resources["images/mvp-spritesheet.json"].textures;
+  farmer = createPlayer(id);
+  gameScene.addChild(farmer);
+  heartsContainer = createHearts(app);
+  heartsContainer.position.set(10, 10);
+  gameScene.addChild(heartsContainer);
+  bgBackground = createBackground(PIXI.Texture.from('images/ground01.jpg'), app);
+}
 
 // ! SETUP FUNCTION (run once)
 export function setup() {
@@ -88,23 +97,26 @@ export function setup() {
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
 
-  // create the timer with the timer text
+  // Timer
   createTimerText();
   timer = new Timer(timerText, endGame);
 
+  // Game objects
+  createGameObjects();
+
   // Alias for texture atlas frame id textures
-  id = resources["images/mvp-spritesheet.json"].textures;
+  //id = resources["images/mvp-spritesheet.json"].textures;
 
   app.stage.interactive = true;
 
   // Create the farmer
-  farmer  = createPlayer(id);
-  gameScene.addChild(farmer);
+  //farmer  = createPlayer(id);
+  //gameScene.addChild(farmer);
 
   // Create the hearts container
-  heartsContainer = createHearts(app);
+/*   heartsContainer = createHearts(app);
   heartsContainer.position.set(10, 10);
-  gameScene.addChild(heartsContainer);
+  gameScene.addChild(heartsContainer); */
 
   // Create the background
   const bgTexture = PIXI.Texture.from('images/ground01.jpg');
