@@ -87,27 +87,9 @@ export function setup() {
   // Gameplay music baby
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
-  // Timer text
-  timerText = new PIXI.Text('Time: 125', {
-    fontFamily: 'Arial',
-    fontSize: 36,
-    fill: "white",
-    stroke: 'orange',
-    strokeThickness: 4,
-    dropShadow: true,
-    dropShadowColor: "#000000",
-    dropShadowBlur: 4,
-    dropShadowAngle: Math.PI / 6,
-    dropShadowDistance: 6,
-    wordWrap: true,
-    wordWrapWidth: 440
-  });
-
-  // timer text position
-  timerText.position.set(width - 200, height - 700);
-  gameScene.addChild(timerText);
 
   // create the timer with the timer text
+  createTimerText();
   timer = new Timer(timerText, endGame);
 
   // Alias for texture atlas frame id textures
@@ -258,4 +240,23 @@ function clearGameScene() {
   gameScene.removeChildren();
   bullets = [];
   enemies = [];
+}
+
+function createTimerText() {
+  timerText = new PIXI.Text('Time: 125', {
+    fontFamily: 'Arial',
+    fontSize: 36,
+    fill: "white",
+    stroke: 'orange',
+    strokeThickness: 4,
+    dropShadow: true,
+    dropShadowColor: "#000000",
+    dropShadowBlur: 4,
+    dropShadowAngle: Math.PI / 6,
+    dropShadowDistance: 6,
+    wordWrap: true,
+    wordWrapWidth: 440
+  });
+  timerText.position.set(width - 200, height - 700);
+  gameScene.addChild(timerText);
 }
