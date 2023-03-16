@@ -52,11 +52,7 @@ let titleScreen,
 
 let bullets;
 let enemies;
-let bgX;
-let bgY;
 let currentState;
-let farmerDeltaX;
-let farmerDeltaY;
 
 
 // Loader
@@ -78,10 +74,6 @@ function createGameObjects() {
 function initializeVariables() {
   bullets = [];
   enemies = [];
-  bgX = 0;
-  bgY = 0;
-  farmerDeltaX = 0;
-  farmerDeltaY = 0;
   currentState = TitleScreenState;
 }
 
