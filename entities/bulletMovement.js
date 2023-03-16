@@ -1,11 +1,11 @@
 import { hitTestRectangle } from "../helpers/collisions";
 
-export function moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY) {
+export function moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta) {
     for (let i=0; i<bullets.length; i++) {
         let bullet = bullets[i];
         if (bullet.parent) {
-            bullet.x += bullet.vx - farmerDeltaX;
-            bullet.y += bullet.vy - farmerDeltaY;
+            bullet.x += bullet.vx - farmerDelta.x;
+            bullet.y += bullet.vy - farmerDelta.y;
 
             // *Check for collision with enemies
             for (let j=0; j<enemies.length; j++) {

@@ -85,7 +85,8 @@ function initializeVariables() {
   currentState = TitleScreenState;
 }
 
-// ! SETUP FUNCTION (run once)
+
+// !Setup (run once)
 export function setup() {
 
   // Initialize variables
@@ -128,7 +129,7 @@ export function setup() {
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
-}
+} // !End of setup function
 
 
 
@@ -141,66 +142,82 @@ function gameLoop(delta) {
     endGame();
     playGameOverMusic();
   }
-}
+} // !End of game loop
 
 
 
-// ! PLAY FUNCTION (run 60fps)
+// !Play (60fps)
 function play(delta) {
 
   // Play music
-  if (!music.isPlaying) {
-    music.volume = 0.0;
-    music.play();
-  }
+  playMusic();
 
   // Farmer movement since last frame
-  farmerDeltaX = farmer.vx * delta;
-  farmerDeltaY = farmer.vy * delta;
+  const farmerDelta = {
+    x: farmer.vx * delta,
+    y: farmer.vy * delta
+  }
 
   // Moves the bg with the farmer
-  updateBG(farmerDeltaX, farmerDeltaY);
+  updateBG(farmerDelta);
 
   // Movement of Enemies and bullets, and collision detection
-  moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene);
-  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDeltaX, farmerDeltaY);
-
+  moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene);
+  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta);
 
   // Check score for win
-  if ((currentState !== GameOverState) && (scoreboard.score >= config.scoreToWin)) {
+  scoreboard.score >= config.scoreToWin ? endGame() : null;
+} // !End of play function
 
-    endGame(); // End game
-  }
-}
 
-// Move tiling background based on farmer movement input
-function updateBG(farmerX, farmerY) {
-  bgBackground.tilePosition.x -= farmerX;
-  bgBackground.tilePosition.y -= farmerY;
-}
 
-// ! END GAME FUNCTION
+
+
+
+// ! End Game
 function endGame() {
   gameOver = new GameOver(app, scoreboard.score, startGame);
   app.stage.addChild(gameOver.gameOverScene);
+
+  // Stop music
   music.pause();
 
+  // Reset score
   scoreboard.resetScore();
   stateTransition(GameOverState);
 
+  // Remove all enemies
+  enemies.forEach(enemy => gameScene.removeChild(enemy));
+
+  // Remove all bullets
+  bullets.forEach(bullet => gameScene.removeChild(bullet));
+
+  // Remove farmer from view
   farmer.visible = false;
+
+  // gameover screen
   gameOver.gameOverScene.visible = true;
-}
+} // !End of endGame function
+
+
+
+
 
 // ! START GAME FUNCTION
 function startGame() {
+  gameOver.gameOverScene.visible = false;  // Hide game over screen
 
-  gameOver.gameOverScene.visible = false;
+  // Start a new game
   if(currentState === GameOverState) {
     setup()
   }
+
+  // Switch to play state
   stateTransition(PlayState);
 }
+
+
+
 
 // !  STATE TRANSITION
 function stateTransition(nextState) {
@@ -212,12 +229,9 @@ function stateTransition(nextState) {
   gameOver.gameOverScene.visible = currentState === GameOverState;
 }
 
-function clearGameScene() {
-  gameScene.removeChildren();
-  bullets = [];
-  enemies = [];
-}
 
+// *HELPER FUNCTIONS
+//*=========================================================
 function createTimerText() {
   timerText = new PIXI.Text('Time: 125', {
     fontFamily: 'Arial',
@@ -263,4 +277,16 @@ function playGameOverMusic() {
   let gameOverMusic = new Audio('/audio/game-over.mp3');
   gameOverMusic.loop = false;
   gameOverMusic.play();
+}
+
+function playMusic() {
+  if(!music.isPlaying) {
+    music.play();
+  }
+}
+
+// Move tiling background based on farmer movement input
+function updateBG(farmerDelta) {
+  bgBackground.tilePosition.x -= farmerDelta.x;
+  bgBackground.tilePosition.y -= farmerDelta.y;
 }

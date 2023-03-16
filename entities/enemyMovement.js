@@ -3,7 +3,7 @@ import Victor from 'victor';
 import { rotateTowards } from '../helpers/rotateTowards.js';
 import * as PIXI from 'pixi.js';
 
-export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsContainer, gameScene) {
+export function moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene) {
 
   const redFlash = new PIXI.Graphics();
   redFlash.beginFill(0xFF0000);
@@ -19,7 +19,7 @@ export function moveEnemies(enemies, farmer, farmerDeltaX, farmerDeltaY, heartsC
     let f = new Victor(farmer.x, farmer.y);
     let d = f.subtract(e);
     let v = d.normalize().multiplyScalar(enemy.speed);
-    enemy.position.set(enemy.position.x + v.x - farmerDeltaX, enemy.position.y + v.y - farmerDeltaY);
+    enemy.position.set(enemy.position.x + v.x - farmerDelta.x, enemy.position.y + v.y - farmerDelta.y);
 
     const playerPos = {x: farmer.x, y: farmer.y};
     const enemyPos = {x: enemy.x, y: enemy.y};
