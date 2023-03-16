@@ -192,6 +192,7 @@ function play(delta) {
 
   // Play music
   if (!music.isPlaying) {
+    music.volume = 0.0;
     music.play();
   }
 

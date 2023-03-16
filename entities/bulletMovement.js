@@ -15,9 +15,9 @@ export function moveBullets(bullets, enemies, scoreboard, gameScene, width, heig
                     gameScene.removeChild(bullet);
                     gameScene.removeChild(enemy);
                     enemies.splice(j, 1);
-                    let spawnSound = new Audio('/audio/dispel-wand-magic.mp3');
-                    spawnSound.volume = 1;
-                    spawnSound.play();
+                    let popSound = getRandomPopSound();
+                    popSound.volume = 1;
+                    popSound.play();
                     break;
                 }
             }
@@ -28,4 +28,15 @@ export function moveBullets(bullets, enemies, scoreboard, gameScene, width, heig
             }
         }
     }
+}
+
+function getRandomPopSound() {
+    const popSounds = [
+        '/audio/pop1.wav',
+        '/audio/pop2.wav',
+        '/audio/pop3.wav',
+    ];
+
+    const randomIndex = Math.floor(Math.random() * popSounds.length);
+        return new Audio(popSounds[randomIndex]);
 }
