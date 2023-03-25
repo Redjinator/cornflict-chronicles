@@ -1,6 +1,5 @@
 import { hitTestRectangle } from '../helpers/collisions.js';
 import Victor from 'victor';
-import { rotateTowards } from '../helpers/rotateTowards.js';
 import * as PIXI from 'pixi.js';
 
 export function moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene) {
