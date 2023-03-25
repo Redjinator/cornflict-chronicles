@@ -22,6 +22,7 @@ import { spawnEnemies } from './entities/spawn.js';
 import { TitleScreenState, PlayState, GameOverState } from './helpers/stateMachine.js';
 import { Timer } from './helpers/timer.js';
 import { rotateTowards } from './helpers/rotateTowards.js';
+import { autoFire } from './helpers/autoFire.js';
 
 const Application = PIXI.Application,
       loader      = PIXI.Loader.shared,
@@ -106,6 +107,9 @@ export function setup() {
 
   // Creating Bullets
   createBullets(10, id);
+
+  // Auto-firing weapon
+  autoFire(farmer, bullets, gameScene);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(config.numWaves, config.waveDelaySec, config.enemyCount, config.enemySpeed, gameScene, enemies, id, app, farmer);
