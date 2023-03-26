@@ -45,13 +45,13 @@ let titleScreen,
     farmer,
     id,
     id0,
-    id1,
     scoreboard,
     heartsContainer,
     music,
     timer,
     timerText,
-    bgBackground;
+    bgBackground,
+    dayNightOverlay;
 
 let bullets;
 let enemies;
@@ -67,14 +67,29 @@ loader
   .load(setup);
 
 function createGameObjects() {
+
+  // Load sprite sheets
   id  = resources["images/mvp-spritesheet.json"].textures;
   id0 = resources["images/cc-spritesheet-0.json"].textures;
+
+  // Create farmer
   farmer = createPlayer(id);
   gameScene.addChild(farmer);
+
+  // Create hearts container
   heartsContainer = createHearts(app);
   heartsContainer.position.set(10, 10);
   gameScene.addChild(heartsContainer);
+
+  // Create the scoreboard
+  scoreboard = new Scoreboard();
+  gameScene.addChild(scoreboard.scoreboard);
+
+  // Create background
   bgBackground = createBackground(PIXI.Texture.from('images/ground01.jpg'), app);
+
+  // Create day/night overlay
+  createDayNightOverlay();
 }
 
 function initializeVariables() {
@@ -101,7 +116,11 @@ export function setup() {
 
   // Timer
   createTimerText();
-  timer = new Timer(timerText, endGame);
+  timer = new Timer(timerText, endGame, (currentTime) => {
+    const maxAlpha = 0.8; // Max darkness 0 - 1
+    const alphaIncrement = maxAlpha / timer.startTime;
+    dayNightOverlay.alpha = maxAlpha - (alphaIncrement * currentTime);
+  });
 
   // Game objects
   createGameObjects();
@@ -110,10 +129,10 @@ export function setup() {
   setupEventListeners();
 
   // Creating Bullets
-  createBullets(10, id);
+  createBullets(100, id);
 
   // Auto-firing weapon
-  autoFire(farmer, bullets, gameScene);
+  //autoFire(farmer, bullets, gameScene);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(
@@ -126,9 +145,7 @@ export function setup() {
     app,
     farmer);
 
-  // Create the scoreboard
-  scoreboard = new Scoreboard();
-  gameScene.addChild(scoreboard.scoreboard);
+
 
   // Create Titlescreen
   titleScreen = new TitleScreen(app, startGame, id0);
@@ -137,8 +154,6 @@ export function setup() {
 
   // Create game over screen
   gameOver = new GameOver(app, scoreboard, setup, id0);
-
-
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
@@ -302,4 +317,13 @@ function playMusic() {
 function updateBG(farmerDelta) {
   bgBackground.tilePosition.x -= farmerDelta.x;
   bgBackground.tilePosition.y -= farmerDelta.y;
+}
+
+function createDayNightOverlay() {
+  dayNightOverlay = new PIXI.Graphics();
+  dayNightOverlay.beginFill(0x000000);
+  dayNightOverlay.drawRect(0, 0, width, height);
+  dayNightOverlay.endFill();
+  dayNightOverlay.alpha = 0;
+  gameScene.addChild(dayNightOverlay);
 }
