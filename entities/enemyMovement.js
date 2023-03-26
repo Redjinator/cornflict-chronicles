@@ -28,7 +28,7 @@ export function moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameS
     const dy = playerPos.y - enemyPos.y;
     const angle = Math.atan2(dy, dx);
 
-    // Rotate the enemy towrds the player
+    // Rotate the enemy towards the player
     enemy.rotation = angle + Math.PI * 1.5;
 
     if (hitTestRectangle(farmer, enemy)) {

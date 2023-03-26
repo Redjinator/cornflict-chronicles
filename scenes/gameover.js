@@ -1,19 +1,19 @@
-import { Container, Text, TextStyle, Graphics} from 'pixi.js';
+import { Container, Text, TextStyle, Graphics, Sprite} from 'pixi.js';
 
 export default class GameOver {
-  constructor(app, scoreboard, restartFunction) {
+  constructor(app, scoreboard, restartFunction, id) {
     this.app = app;
     this.gameOverScene = new Container();
     this.scoreboard = scoreboard;
     this.restartFunction = restartFunction;
 
+    const gameOverImage = new Sprite(PIXI.Texture.from("../public/images/gameoverimg.png"));
+    gameOverImage.anchor.set(0.5);
+    gameOverImage.scale.set(0.8);
+    gameOverImage.position.set(app.view.width / 2, app.view.height / 2);
+    this.gameOverScene.addChild(gameOverImage);
 
-    // Just a black background for now, will replace later with a cool gameover screen
-    const blackBG = new Graphics();
-    blackBG.beginFill(0x000000);
-    blackBG.drawRect(0, 0, app.view.width, app.view.height);
-    blackBG.endFill();
-    this.gameOverScene.addChild(blackBG);
+
 
     // Display Score Text
     this.finalScoreText = new PIXI.Text(`Final Score ${this.scoreboard}`, {

@@ -44,6 +44,8 @@ let titleScreen,
     gameOver,
     farmer,
     id,
+    id0,
+    id1,
     scoreboard,
     heartsContainer,
     music,
@@ -59,11 +61,14 @@ let currentState;
 // Loader
 loader.onProgress.add(loadProgressHandler);
 loader
+  .add('images/cc-spritesheet-0.json')
   .add('images/mvp-spritesheet.json')
+  .add('images/gameoverimg.png')
   .load(setup);
 
 function createGameObjects() {
-  id = resources["images/mvp-spritesheet.json"].textures;
+  id  = resources["images/mvp-spritesheet.json"].textures;
+  id0 = resources["images/cc-spritesheet-0.json"].textures;
   farmer = createPlayer(id);
   gameScene.addChild(farmer);
   heartsContainer = createHearts(app);
@@ -89,8 +94,7 @@ export function setup() {
   gameScene = new Container();
   gameScene.visible = false;
 
-    // Create game over screen
-  gameOver = new GameOver(app);
+
 
   // Gameplay Music
   music = new Audio('/audio/music/InHeavyMetal.mp3');
@@ -112,16 +116,29 @@ export function setup() {
   autoFire(farmer, bullets, gameScene);
 
   // Spawn enemies with specifics for each wave
-  spawnEnemies(config.numWaves, config.waveDelaySec, config.enemyCount, config.enemySpeed, gameScene, enemies, id, app, farmer);
+  spawnEnemies(
+    config.numWaves,
+    config.waveDelaySec,
+    config.enemyCount,
+    config.enemySpeed,
+    gameScene, enemies,
+    id,
+    app,
+    farmer);
 
   // Create the scoreboard
   scoreboard = new Scoreboard();
   gameScene.addChild(scoreboard.scoreboard);
 
   // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame, id);
+  titleScreen = new TitleScreen(app, startGame, id0);
   app.stage.addChild(titleScreen.titleScene);
   app.stage.addChild(gameScene);
+
+  // Create game over screen
+  gameOver = new GameOver(app, scoreboard, setup, id0);
+
+
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
@@ -172,7 +189,7 @@ function play(delta) {
 
 // ! End Game
 function endGame() {
-  gameOver = new GameOver(app, scoreboard.score, startGame);
+  gameOver = new GameOver(app, scoreboard.score, startGame, id0);
   app.stage.addChild(gameOver.gameOverScene);
 
   // Stop music
@@ -198,7 +215,7 @@ function endGame() {
 
 
 
-
+ 
 // ! START GAME FUNCTION
 function startGame() {
   gameOver.gameOverScene.visible = false;  // Hide game over screen
