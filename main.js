@@ -24,6 +24,7 @@ import { Timer } from './helpers/timer.js';
 import { rotateTowards } from './helpers/rotateTowards.js';
 import { autoFire } from './helpers/autoFire.js';
 
+
 const Application = PIXI.Application,
       loader      = PIXI.Loader.shared,
       resources   = PIXI.Loader.shared.resources;
@@ -31,6 +32,8 @@ const Application = PIXI.Application,
 const app = new Application({
   width: 1280,
   height: 720,
+  view: document.getElementById('game-canvas'),
+  //context: create2DContextWithWillReadFrequently(1280, 720),
   antialias: true,
   transparent: false,
   resolution: 1
@@ -38,6 +41,7 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 const { width, height } = app.view;
+
 
 let titleScreen,
     gameScene,
@@ -55,7 +59,7 @@ let titleScreen,
 
 let bullets;
 let enemies;
-let currentState;
+let currentState = TitleScreenState;
 
 
 // Loader
@@ -71,6 +75,10 @@ function createGameObjects() {
   // Load sprite sheets
   id  = resources["images/mvp-spritesheet.json"].textures;
   id0 = resources["images/cc-spritesheet-0.json"].textures;
+
+  // Game scenes
+  gameScene = new Container();
+  gameScene.visible = false;
 
   // Create farmer
   farmer = createPlayer(id);
@@ -90,49 +98,46 @@ function createGameObjects() {
 
   // Create day/night overlay
   createDayNightOverlay();
+
+  // Gameplay Music
+  music = new Audio('/audio/music/InHeavyMetal.mp3');
+
+  // Create Titlescreen
+  titleScreen = new TitleScreen(app, startGame, id0);
+
+  // Create game over screen
+  gameOver = new GameOver(app, scoreboard, setup, id0);
+
+  // Timer
+  createTimerText();
+  timer = new Timer(timerText, endGame, (currentTime) => {
+    const maxAlpha = 1; // Max darkness 0 - 1
+    const alphaIncrement = maxAlpha / timer.startTime;
+    dayNightOverlay.alpha = maxAlpha - (alphaIncrement * currentTime);
+  });
 }
 
 function initializeVariables() {
   bullets = [];
   enemies = [];
-  currentState = TitleScreenState;
 }
 
 
 // !Setup (run once)
 export function setup() {
 
-  // Initialize variables
+  // Initialize variables and game objects
   initializeVariables();
-
-  // Game scenes
-  gameScene = new Container();
-  gameScene.visible = false;
-
-
-
-  // Gameplay Music
-  music = new Audio('/audio/music/InHeavyMetal.mp3');
-
-  // Timer
-  createTimerText();
-  timer = new Timer(timerText, endGame, (currentTime) => {
-    const maxAlpha = 0.8; // Max darkness 0 - 1
-    const alphaIncrement = maxAlpha / timer.startTime;
-    dayNightOverlay.alpha = maxAlpha - (alphaIncrement * currentTime);
-  });
-
-  // Game objects
   createGameObjects();
 
   // Setup event listeners
   setupEventListeners();
 
   // Creating Bullets
-  createBullets(100, id);
+  createBullets(100, id0);
 
-  // Auto-firing weapon
-  //autoFire(farmer, bullets, gameScene);
+  // Auto-firing weapon (prototype power up)
+  autoFire(farmer, bullets, gameScene, false, 500);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(
@@ -145,19 +150,14 @@ export function setup() {
     app,
     farmer);
 
-
-
-  // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame, id0);
+  // Add title and game screen to stage
   app.stage.addChild(titleScreen.titleScene);
   app.stage.addChild(gameScene);
 
-  // Create game over screen
-  gameOver = new GameOver(app, scoreboard, setup, id0);
-
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
-} // !End of setup function
+}
+// !End of setup function
 
 
 
@@ -166,22 +166,23 @@ function gameLoop(delta) {
   if (currentState === PlayState) { play(delta) }
 
   // Check for 0 hearts (game over)
-  if (currentState !== GameOverState && heartsContainer.children.length == 0) {
+  if (currentState == PlayState && heartsContainer.children.length == 0) {
     endGame();
+
     playGameOverMusic();
   }
 } // !End of game loop
 
 
 
-// !Play (60fps)
+// * PLAY START
 function play(delta) {
 
   // Play music
   playMusic();
 
-  // Farmer movement since last frame
-  const farmerDelta = {
+  // Farmer movement since last frame, use to calculate movement of enemies and bullets with infinite scroll bg
+  const farmerDelta = (delta) = {
     x: farmer.vx * delta,
     y: farmer.vy * delta
   }
@@ -191,21 +192,22 @@ function play(delta) {
 
   // Movement of Enemies and bullets, and collision detection
   moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene);
-  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta);
+  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta, farmer);
 
   // Check score for win
   scoreboard.score >= config.scoreToWin ? endGame() : null;
-} // !End of play function
+} // ! PLAY END
 
 
 
 
 
 
-// ! End Game
+// * END GAME START
 function endGame() {
   gameOver = new GameOver(app, scoreboard.score, startGame, id0);
   app.stage.addChild(gameOver.gameOverScene);
+  app.stage.removeChild(gameScene);
 
   // Stop music
   music.pause();
@@ -225,15 +227,18 @@ function endGame() {
 
   // gameover screen
   gameOver.gameOverScene.visible = true;
-} // !End of endGame function
+} // ! END GAME END
 
 
 
-
- 
-// ! START GAME FUNCTION
+// * START GAME START
 function startGame() {
-  gameOver.gameOverScene.visible = false;  // Hide game over screen
+
+  // Hide title screen
+  titleScreen.titleScene.visible = false;
+
+  // Hide game over screen
+  gameOver.gameOverScene.visible = false;
 
   // Start a new game
   if(currentState === GameOverState) {
@@ -242,26 +247,27 @@ function startGame() {
 
   // Switch to play state
   stateTransition(PlayState);
-}
+
+  // Start the timer
+  timer.start();
+ } // ! START GAME END
 
 
 
-
-// !  STATE TRANSITION
-function stateTransition(nextState) {
+// * STATE TRANSITION START
+function stateTransition(nextState = TitleScreenState) {
   console.log(`Moving from ${currentState.name} to ${nextState.name}`);
-  nextState === PlayState ? timer.start() : timer.stop();
   currentState = nextState;
   titleScreen.titleScene.visible = currentState === TitleScreenState;
   gameScene.visible = currentState === PlayState;
   gameOver.gameOverScene.visible = currentState === GameOverState;
-}
+} // ! STATE TRANSITION END
 
 
 // *HELPER FUNCTIONS
 //*=========================================================
 function createTimerText() {
-  timerText = new PIXI.Text('Time: 125', {
+  timerText = new PIXI.Text('Time: 30', {
     fontFamily: 'Arial',
     fontSize: 36,
     fill: "white",
@@ -280,7 +286,6 @@ function createTimerText() {
 }
 
 function setupEventListeners() {
-
   app.stage.interactive = true;
 
   app.stage.on('pointermove', (event) => {
