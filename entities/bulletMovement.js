@@ -1,6 +1,6 @@
 import { hitTestRectangle } from "../helpers/collisions";
 
-export function moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta) {
+export function moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta, farmer) {
     for (let i=0; i<bullets.length; i++) {
         let bullet = bullets[i];
         if (bullet.parent) {

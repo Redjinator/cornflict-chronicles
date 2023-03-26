@@ -6,9 +6,11 @@ export function shoot(farmer, bullets, gameScene) {
     if (!bullet.parent) {
       bullet.x = farmer.x;
       bullet.y = farmer.y;
-      bullet.rotation = farmer.rotation;
-      bullet.vx = Math.cos(farmer.rotation) * 10;
-      bullet.vy = Math.sin(farmer.rotation) * 10;
+      bullet.rotation = (farmer.rotation + Math.PI / 2);
+      const speed = 10;
+      bullet.vx = Math.cos(farmer.rotation) * speed;
+      bullet.vy = Math.sin(farmer.rotation) * speed;
+      bullet.zIndex = 0;
       gameScene.addChild(bullet);
       let instance = new Audio("/audio/shot.mp3");
       instance.volume = 0.1;
