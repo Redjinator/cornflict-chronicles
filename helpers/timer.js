@@ -38,7 +38,5 @@ export class Timer {
   updateText() {
     this.text.text = `Time: ${this.currentTime}`;
   }
-
-
 }
 

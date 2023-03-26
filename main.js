@@ -77,6 +77,7 @@ function createGameObjects() {
   id0 = resources["images/cc-spritesheet-0.json"].textures;
 
   // Game scenes
+  
   gameScene = new Container();
   gameScene.visible = false;
 
@@ -122,8 +123,10 @@ function initializeVariables() {
   enemies = [];
 }
 
+// * ==========================================================================
 
-// !Setup (run once)
+
+// * SETUP START
 export function setup() {
 
   // Initialize variables and game objects
@@ -156,12 +159,13 @@ export function setup() {
 
   // Start game loop
   app.ticker.add(delta => gameLoop(delta));
+  
 }
-// !End of setup function
+// ! SETUP END
 
 
 
-// !Game Loop
+// * GAME LOOP START
 function gameLoop(delta) {
   if (currentState === PlayState) { play(delta) }
 
@@ -171,7 +175,7 @@ function gameLoop(delta) {
 
     playGameOverMusic();
   }
-} // !End of game loop
+} // ! GAME LOOP END
 
 
 
@@ -256,7 +260,6 @@ function startGame() {
 
 // * STATE TRANSITION START
 function stateTransition(nextState = TitleScreenState) {
-  console.log(`Moving from ${currentState.name} to ${nextState.name}`);
   currentState = nextState;
   titleScreen.titleScene.visible = currentState === TitleScreenState;
   gameScene.visible = currentState === PlayState;
@@ -285,6 +288,7 @@ function createTimerText() {
   gameScene.addChild(timerText);
 }
 
+// * Event Listeners
 function setupEventListeners() {
   app.stage.interactive = true;
 
@@ -295,7 +299,7 @@ function setupEventListeners() {
   app.stage.on('pointerdown', (event) => {
     shoot(farmer, bullets, gameScene);
   });
-}
+} // ! Event Listeners
 
 function createBullets(bulletLimit, id) {
   for (let i = 0; i < bulletLimit; i++) {
