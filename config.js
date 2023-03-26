@@ -1,8 +1,8 @@
 export const config = {
-    scoreToWin: 50,
-    bulletLimit: 10,
+    scoreToWin: 1000,
+    bulletLimit: 100,
     numWaves: 5,
-    waveDelaySec: 10,
-    enemyCount: 50,
-    enemySpeed: 6
+    waveDelaySec: 5,
+    enemyCount: 500,
+    enemySpeed: 1,
 };
