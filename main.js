@@ -15,7 +15,7 @@ import { loadProgressHandler } from './helpers/loadProgress.js';
 import { createBackground } from './helpers/createBackground.js';
 import { createPlayer } from './entities/player.js';
 import { moveEnemies } from './entities/enemyMovement.js';
-import { createBullet } from './entities/bullet.js';
+import { createAutoFireForks, createBullet } from './entities/bullet.js';
 import { moveBullets } from './entities/bulletMovement.js';
 import { shoot } from './entities/shoot.js';
 import { spawnEnemies } from './entities/spawn.js';
@@ -23,6 +23,7 @@ import { TitleScreenState, PlayState, GameOverState } from './helpers/stateMachi
 import { Timer } from './helpers/timer.js';
 import { rotateTowards } from './helpers/rotateTowards.js';
 import { autoFire } from './helpers/autoFire.js';
+import { Sprite } from 'pixi.js';
 
 
 const Application = PIXI.Application,
@@ -47,8 +48,9 @@ let titleScreen,
     gameScene,
     gameOver,
     farmer,
-    id,
-    id0,
+    ground,
+    idObjects,
+    idScreens,
     scoreboard,
     heartsContainer,
     music,
@@ -59,30 +61,33 @@ let titleScreen,
 
 let bullets;
 let enemies;
+let forks;
 let currentState = TitleScreenState;
 
 
 // Loader
 loader.onProgress.add(loadProgressHandler);
 loader
-  .add('images/cc-spritesheet-0.json')
-  .add('images/mvp-spritesheet.json')
-  .add('images/gameoverimg.png')
+  .add('images/screens-spritesheet.json')
+  .add('images/obj-spritesheet.json')
+  .add('images/ground.jpg')
   .load(setup);
 
+
+// * CREATE GAME OBJECTS====
 function createGameObjects() {
 
   // Load sprite sheets
-  id  = resources["images/mvp-spritesheet.json"].textures;
-  id0 = resources["images/cc-spritesheet-0.json"].textures;
+  idScreens = resources["images/screens-spritesheet.json"].textures;
+  idObjects = resources["images/obj-spritesheet.json"].textures;
+  ground = resources["images/ground.jpg"].texture;
 
   // Game scenes
-  
   gameScene = new Container();
   gameScene.visible = false;
 
   // Create farmer
-  farmer = createPlayer(id);
+  farmer = createPlayer(idObjects);
   gameScene.addChild(farmer);
 
   // Create hearts container
@@ -95,7 +100,7 @@ function createGameObjects() {
   gameScene.addChild(scoreboard.scoreboard);
 
   // Create background
-  bgBackground = createBackground(PIXI.Texture.from('images/ground01.jpg'), app);
+  bgBackground = createBackground(new Sprite(ground).texture, app);
 
   // Create day/night overlay
   createDayNightOverlay();
@@ -104,10 +109,10 @@ function createGameObjects() {
   music = new Audio('/audio/music/InHeavyMetal.mp3');
 
   // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame, id0);
+  titleScreen = new TitleScreen(app, startGame, idScreens);
 
   // Create game over screen
-  gameOver = new GameOver(app, scoreboard, setup, id0);
+  gameOver = new GameOver(app, scoreboard, setup, idScreens);
 
   // Timer
   createTimerText();
@@ -116,12 +121,17 @@ function createGameObjects() {
     const alphaIncrement = maxAlpha / timer.startTime;
     dayNightOverlay.alpha = maxAlpha - (alphaIncrement * currentTime);
   });
-}
 
+  forks.forEach((fork) => gameScene.addChild(fork));
+} // ! CREATE GAME OBJECTS END
+
+
+// * INITIALIZE VARIABLES START
 function initializeVariables() {
   bullets = [];
   enemies = [];
-}
+  forks = [];
+} // ! INITIALIZE VARIABLES END
 
 // * ==========================================================================
 
@@ -137,10 +147,10 @@ export function setup() {
   setupEventListeners();
 
   // Creating Bullets
-  createBullets(100, id0);
+  createBullets(100, idObjects);
 
   // Auto-firing weapon (prototype power up)
-  autoFire(farmer, bullets, gameScene, false, 500);
+  autoFire(farmer, forks, gameScene, true, 500);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(
@@ -149,7 +159,7 @@ export function setup() {
     config.enemyCount,
     config.enemySpeed,
     gameScene, enemies,
-    id,
+    idObjects,
     app,
     farmer);
 
@@ -209,7 +219,7 @@ function play(delta) {
 
 // * END GAME START
 function endGame() {
-  gameOver = new GameOver(app, scoreboard.score, startGame, id0);
+  gameOver = new GameOver(app, scoreboard.score, startGame, idScreens);
   app.stage.addChild(gameOver.gameOverScene);
   app.stage.removeChild(gameScene);
 

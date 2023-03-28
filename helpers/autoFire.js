@@ -1,10 +1,10 @@
 import { shoot } from "../entities/shoot.js";
 
-export function autoFire(farmer, bullets, gameScene, active, interval) {
+export function autoFire(farmer, forks, gameScene, active, interval) {
 
   if (active) {
     setInterval(() => {
-      shoot(farmer, bullets, gameScene);
+      shoot(farmer, forks, gameScene);
     }, interval); // fire every half second
   }
 }
