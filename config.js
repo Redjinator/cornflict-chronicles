@@ -3,6 +3,6 @@ export const config = {
     bulletLimit: 100,
     numWaves: 5,
     waveDelaySec: 5,
-    enemyCount: 500,
+    enemyCount: 10,
     enemySpeed: 1,
 };
