@@ -7,7 +7,7 @@ export default class GameOver {
     this.scoreboard = scoreboard;
     this.restartFunction = restartFunction;
 
-    const gameOverImage = new Sprite(PIXI.Texture.from("../images/gameoverimg.png"));
+    const gameOverImage = new Sprite(id["gameover-image"]);
     gameOverImage.anchor.set(0.5);
     gameOverImage.scale.set(0.8);
     gameOverImage.position.set(app.view.width / 2, app.view.height / 2);

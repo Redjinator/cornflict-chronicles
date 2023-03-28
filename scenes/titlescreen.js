@@ -4,7 +4,7 @@ export default class TitleScreen {
   constructor(app, startGame, id ) {
     this.titleScene = new Container();
 
-    const titleImage = new Sprite(id["CornflictChroniclesTitle"]);
+    const titleImage = new Sprite(id["title-image"]);
     titleImage.anchor.set(0.5);
     titleImage.scale.set(0.8);
     titleImage.position.set(app.view.width / 2, app.view.height / 2);
