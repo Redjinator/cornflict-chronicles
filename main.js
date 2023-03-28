@@ -82,16 +82,20 @@ function createGameObjects() {
   // Load sprite sheets
   idScreens = resources["images/screens-spritesheet.json"].textures;
   idObjects = resources["images/obj-spritesheet.json"].textures;
-  idleSheet  = resources["images/farmer-idle.json"];//.spritesheet.animations["farmer-idle"];
+  idleSheet  = PIXI.loader.resources["images/farmer-idle.json"];
+  let testSprite = new PIXI.Sprite(idleSheet.textures["farmer-idle-01"]);
   ground = resources["images/ground.jpg"].texture;
+
+
 
   // Game scenes
   gameScene = new Container();
   gameScene.visible = false;
 
   // Create farmer
-  farmer = createPlayer(idleSheet);
+  farmer = createPlayer(testSprite);
   gameScene.addChild(farmer);
+  gameScene.addChild(testSprite);
 
   // Create hearts container
   heartsContainer = createHearts(app);
