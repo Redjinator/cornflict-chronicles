@@ -5,100 +5,117 @@ Course: DGL-209 Capstone Project
 Modified: 2023-03-015
 */
 
-import { config } from './config.js';
-import Scoreboard from './scenes/scoreboard.js';
-import TitleScreen from './scenes/titlescreen.js';
-import GameOver from './scenes/gameover.js';
-import { Container } from 'pixi.js';
-import { createHearts } from './entities/hearts.js';
-import { loadProgressHandler } from './helpers/loadProgress.js';
-import { createBackground } from './helpers/createBackground.js';
-import { createPlayer } from './entities/player.js';
-import { moveEnemies } from './entities/enemyMovement.js';
-import { createAutoFireForks, createBullet } from './entities/bullet.js';
-import { moveBullets } from './entities/bulletMovement.js';
-import { shoot } from './entities/shoot.js';
-import { spawnEnemies } from './entities/spawn.js';
-import { TitleScreenState, PlayState, GameOverState } from './helpers/stateMachine.js';
-import { Timer } from './helpers/timer.js';
-import { rotateTowards } from './helpers/rotateTowards.js';
-import { autoFire } from './helpers/autoFire.js';
-import { Sprite } from 'pixi.js';
-
+import { config } from "./config.js";
+import Scoreboard from "./scenes/scoreboard.js";
+import TitleScreen from "./scenes/titlescreen.js";
+import GameOver from "./scenes/gameover.js";
+import { Container } from "pixi.js";
+import { createHearts } from "./entities/hearts.js";
+import { loadProgressHandler } from "./helpers/loadProgress.js";
+import { createBackground } from "./helpers/createBackground.js";
+import { createPlayer } from "./entities/player.js";
+import { moveEnemies } from "./entities/enemyMovement.js";
+import { createAutoFireForks, createBullet } from "./entities/bullet.js";
+import { moveBullets } from "./entities/bulletMovement.js";
+import { shoot } from "./entities/shoot.js";
+import { spawnEnemies } from "./entities/spawn.js";
+import {
+  TitleScreenState,
+  PlayState,
+  GameOverState,
+} from "./helpers/stateMachine.js";
+import { Timer } from "./helpers/timer.js";
+import { rotateTowards } from "./helpers/rotateTowards.js";
+import { autoFire } from "./helpers/autoFire.js";
+import { Sprite } from "pixi.js";
 
 const Application = PIXI.Application,
-      loader      = PIXI.Loader.shared,
-      resources   = PIXI.Loader.shared.resources;
+  loader = PIXI.Loader.shared,
+  resources = PIXI.Loader.shared.resources;
 
 const app = new Application({
   width: 1280,
   height: 720,
-  view: document.getElementById('game-canvas'),
+  view: document.getElementById("game-canvas"),
   //context: create2DContextWithWillReadFrequently(1280, 720),
   antialias: true,
   transparent: false,
-  resolution: 1
+  resolution: 1,
 });
 
 document.body.appendChild(app.view);
 const { width, height } = app.view;
 
-
 let titleScreen,
-    gameScene,
-    gameOver,
-    farmer,
-    ground,
-    idObjects,
-    idScreens,
-    idleSheet,
-    scoreboard,
-    heartsContainer,
-    music,
-    timer,
-    timerText,
-    bgBackground,
-    dayNightOverlay;
+  gameScene,
+  gameOver,
+  farmer,
+  ground,
+  idObjects,
+  idScreens,
+  idleSheet,
+  stillFarmer,
+  animatedFarmer,
+  heart,
+  scoreboard,
+  heartsContainer,
+  music,
+  timer,
+  timerText,
+  bgBackground,
+  deadSheet,
+  dayNightOverlay;
 
 let bullets;
 let enemies;
 let forks;
 let currentState = TitleScreenState;
 
-
 // Loader
 loader.onProgress.add(loadProgressHandler);
 loader
-  .add('images/screens-spritesheet.json')
-  .add('images/obj-spritesheet.json')
-  .add('images/farmer-idle.json')
-  .add('images/ground.jpg')
+  .add("images/screens-spritesheet.json")
+  .add("images/obj-spritesheet.json")
+  .add("images/ground.jpg")
+  .add("images/heart.png")
+  .add("IdleFarmer", "images/farmer_idle.json")
+  .add("RunFarmer", "images/farmer_run.json")
   .load(setup);
-
 
 // * CREATE GAME OBJECTS====
 function createGameObjects() {
-
   // Load sprite sheets
   idScreens = resources["images/screens-spritesheet.json"].textures;
   idObjects = resources["images/obj-spritesheet.json"].textures;
-  idleSheet  = PIXI.loader.resources["images/farmer-idle.json"];
-  let testSprite = new PIXI.Sprite(idleSheet.textures["farmer-idle-01"]);
   ground = resources["images/ground.jpg"].texture;
+  heart = resources["images/heart.png"].texture;
 
+  // Animation
+  idleSheet = resources["IdleFarmer"].spritesheet;
+  let runSheet = resources["RunFarmer"].spritesheet;
 
+  // Sprite made from still frame of an animation
+  stillFarmer = new PIXI.Sprite(
+    resources["RunFarmer"].textures["run_with_gun_007"]
+  );
+
+  // Animated sprite
+  animatedFarmer = new PIXI.AnimatedSprite(idleSheet.animations["idle"]);
+  animatedFarmer.animationSpeed = 0.2;
+  animatedFarmer.play();
+
+  function createStillFrame() {}
 
   // Game scenes
   gameScene = new Container();
   gameScene.visible = false;
 
   // Create farmer
-  farmer = createPlayer(testSprite);
+  farmer = createPlayer(stillFarmer);
   gameScene.addChild(farmer);
-  gameScene.addChild(testSprite);
 
   // Create hearts container
-  heartsContainer = createHearts(app);
+  heartsContainer = createHearts(app, heart);
   heartsContainer.position.set(10, 10);
   gameScene.addChild(heartsContainer);
 
@@ -113,7 +130,7 @@ function createGameObjects() {
   createDayNightOverlay();
 
   // Gameplay Music
-  music = new Audio('/audio/music/InHeavyMetal.mp3');
+  music = new Audio("/audio/music/InHeavyMetal.mp3");
 
   // Create Titlescreen
   titleScreen = new TitleScreen(app, startGame, idScreens);
@@ -126,12 +143,11 @@ function createGameObjects() {
   timer = new Timer(timerText, endGame, (currentTime) => {
     const maxAlpha = 1; // Max darkness 0 - 1
     const alphaIncrement = maxAlpha / timer.startTime;
-    dayNightOverlay.alpha = maxAlpha - (alphaIncrement * currentTime);
+    dayNightOverlay.alpha = maxAlpha - alphaIncrement * currentTime;
   });
 
   forks.forEach((fork) => gameScene.addChild(fork));
 } // ! CREATE GAME OBJECTS END
-
 
 // * INITIALIZE VARIABLES START
 function initializeVariables() {
@@ -142,10 +158,8 @@ function initializeVariables() {
 
 // * ==========================================================================
 
-
 // * SETUP START
 export function setup() {
-
   // Initialize variables and game objects
   initializeVariables();
   createGameObjects();
@@ -165,26 +179,27 @@ export function setup() {
     config.waveDelaySec,
     config.enemyCount,
     config.enemySpeed,
-    gameScene, enemies,
+    gameScene,
+    enemies,
     idObjects,
     app,
-    farmer);
+    farmer
+  );
 
   // Add title and game screen to stage
   app.stage.addChild(titleScreen.titleScene);
   app.stage.addChild(gameScene);
 
   // Start game loop
-  app.ticker.add(delta => gameLoop(delta));
-  
+  app.ticker.add((delta) => gameLoop(delta));
 }
 // ! SETUP END
 
-
-
 // * GAME LOOP START
 function gameLoop(delta) {
-  if (currentState === PlayState) { play(delta) }
+  if (currentState === PlayState) {
+    play(delta);
+  }
 
   // Check for 0 hearts (game over)
   if (currentState == PlayState && heartsContainer.children.length == 0) {
@@ -194,35 +209,36 @@ function gameLoop(delta) {
   }
 } // ! GAME LOOP END
 
-
-
 // * PLAY START
 function play(delta) {
-
   // Play music
   playMusic();
 
   // Farmer movement since last frame, use to calculate movement of enemies and bullets with infinite scroll bg
-  const farmerDelta = (delta) = {
+  const farmerDelta = (delta = {
     x: farmer.vx * delta,
-    y: farmer.vy * delta
-  }
+    y: farmer.vy * delta,
+  });
 
   // Moves the bg with the farmer
   updateBG(farmerDelta);
 
   // Movement of Enemies and bullets, and collision detection
   moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene);
-  moveBullets(bullets, enemies, scoreboard, gameScene, width, height, farmerDelta, farmer);
+  moveBullets(
+    bullets,
+    enemies,
+    scoreboard,
+    gameScene,
+    width,
+    height,
+    farmerDelta,
+    farmer
+  );
 
   // Check score for win
   scoreboard.score >= config.scoreToWin ? endGame() : null;
 } // ! PLAY END
-
-
-
-
-
 
 // * END GAME START
 function endGame() {
@@ -238,10 +254,10 @@ function endGame() {
   stateTransition(GameOverState);
 
   // Remove all enemies
-  enemies.forEach(enemy => gameScene.removeChild(enemy));
+  enemies.forEach((enemy) => gameScene.removeChild(enemy));
 
   // Remove all bullets
-  bullets.forEach(bullet => gameScene.removeChild(bullet));
+  bullets.forEach((bullet) => gameScene.removeChild(bullet));
 
   // Remove farmer from view
   farmer.visible = false;
@@ -250,11 +266,8 @@ function endGame() {
   gameOver.gameOverScene.visible = true;
 } // ! END GAME END
 
-
-
 // * START GAME START
 function startGame() {
-
   // Hide title screen
   titleScreen.titleScene.visible = false;
 
@@ -262,8 +275,8 @@ function startGame() {
   gameOver.gameOverScene.visible = false;
 
   // Start a new game
-  if(currentState === GameOverState) {
-    setup()
+  if (currentState === GameOverState) {
+    setup();
   }
 
   // Switch to play state
@@ -271,9 +284,7 @@ function startGame() {
 
   // Start the timer
   timer.start();
- } // ! START GAME END
-
-
+} // ! START GAME END
 
 // * STATE TRANSITION START
 function stateTransition(nextState = TitleScreenState) {
@@ -283,15 +294,14 @@ function stateTransition(nextState = TitleScreenState) {
   gameOver.gameOverScene.visible = currentState === GameOverState;
 } // ! STATE TRANSITION END
 
-
 // *HELPER FUNCTIONS
 //*=========================================================
 function createTimerText() {
-  timerText = new PIXI.Text('Time: 30', {
-    fontFamily: 'Arial',
+  timerText = new PIXI.Text("Time: 30", {
+    fontFamily: "Arial",
     fontSize: 36,
     fill: "white",
-    stroke: 'orange',
+    stroke: "orange",
     strokeThickness: 4,
     dropShadow: true,
     dropShadowColor: "#000000",
@@ -299,7 +309,7 @@ function createTimerText() {
     dropShadowAngle: Math.PI / 6,
     dropShadowDistance: 6,
     wordWrap: true,
-    wordWrapWidth: 440
+    wordWrapWidth: 440,
   });
   timerText.position.set(width - 200, height - 700);
   gameScene.addChild(timerText);
@@ -309,11 +319,11 @@ function createTimerText() {
 function setupEventListeners() {
   app.stage.interactive = true;
 
-  app.stage.on('pointermove', (event) => {
+  app.stage.on("pointermove", (event) => {
     farmer.rotation = rotateTowards(event, farmer);
   });
 
-  app.stage.on('pointerdown', (event) => {
+  app.stage.on("pointerdown", (event) => {
     shoot(farmer, bullets, gameScene);
   });
 } // ! Event Listeners
@@ -328,13 +338,13 @@ function createBullets(bulletLimit, id) {
 function playGameOverMusic() {
   music.pause();
 
-  let gameOverMusic = new Audio('/audio/game-over.mp3');
+  let gameOverMusic = new Audio("/audio/game-over.mp3");
   gameOverMusic.loop = false;
   gameOverMusic.play();
 }
 
 function playMusic() {
-  if(!music.isPlaying) {
+  if (!music.isPlaying) {
     music.play();
   }
 }

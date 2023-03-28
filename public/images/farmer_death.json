@@ -1,0 +1,60 @@
+{"frames": {
+
+"die_000":
+{
+	"frame": {"x":680,"y":1,"w":278,"h":351},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":275,"y":165,"w":278,"h":351},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"die_001":
+{
+	"frame": {"x":520,"y":1161,"w":442,"h":454},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":193,"y":138,"w":442,"h":454},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"die_002":
+{
+	"frame": {"x":1,"y":1161,"w":570,"h":517},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":119,"y":92,"w":570,"h":517},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"die_003":
+{
+	"frame": {"x":1,"y":581,"w":675,"h":578},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":59,"y":0,"w":675,"h":578},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"die_004":
+{
+	"frame": {"x":1,"y":1,"w":677,"h":578},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":59,"y":0,"w":677,"h":578},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+}},
+"animations": {
+	"die": ["die_000","die_001","die_002","die_003","die_004"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "farmer_death.png",
+	"format": "RGBA8888",
+	"size": {"w":963,"h":1732},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:c35664df5cf08b13de3e14af74ba4343:0b08a41991ebd73708772f5fbcf05e56:da32fceaee0f23fdc0d02d172d35c5bc$"
+}
+}

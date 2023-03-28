@@ -1,10 +1,16 @@
-import { setSpriteProperties } from '../helpers/spriteProperties.js';
 import { setupKeyboard } from './keyboardMovement.js';
-import { Sprite } from 'pixi.js';
 
-export default function createPlayer(idle) {
-    const player = setSpriteProperties(idle, 0.5, 0.2, 640, 360);
-    player.scale.set(0.1);
+export function createPlayer(idle) {
+    let player = idle;
+    player.scale.set(0.2);
+    player.anchor.set(0.4, 0.5);
+    player.position.set(640, 360);
 
-    return setupKeyboard(player);
+    player.vx = 0;
+    player.vy = 0;
+    player = setupKeyboard(player);
+
+    return player;
 }
+
+

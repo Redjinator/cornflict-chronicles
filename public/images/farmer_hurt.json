@@ -1,0 +1,69 @@
+{"frames": {
+
+"hurt_000":
+{
+	"frame": {"x":1552,"y":1,"w":278,"h":351},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":275,"y":165,"w":278,"h":351},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"hurt_001":
+{
+	"frame": {"x":1174,"y":1,"w":376,"h":434},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":178,"y":124,"w":376,"h":434},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"hurt_002":
+{
+	"frame": {"x":1,"y":1,"w":479,"h":592},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":98,"y":64,"w":479,"h":592},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"hurt_003":
+{
+	"frame": {"x":1,"y":1,"w":479,"h":592},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":98,"y":64,"w":479,"h":592},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"hurt_004":
+{
+	"frame": {"x":1,"y":1,"w":479,"h":592},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":98,"y":64,"w":479,"h":592},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+},
+"hurt_005":
+{
+	"frame": {"x":595,"y":1,"w":473,"h":577},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":105,"y":70,"w":473,"h":577},
+	"sourceSize": {"w":924,"h":668},
+	"anchor": {"x":0.42,"y":0.5}
+}},
+"animations": {
+	"hurt": ["hurt_000","hurt_001","hurt_002","hurt_003","hurt_004","hurt_005"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "farmer_hurt.png",
+	"format": "RGBA8888",
+	"size": {"w":1831,"h":481},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:471116f9d1da5de9654fcd84101c2c70:a075462bb6d86898d381c1de7b23df37:4dba60a8b0da4dc08542a3c104943c5b$"
+}
+}
