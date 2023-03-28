@@ -51,6 +51,7 @@ let titleScreen,
     ground,
     idObjects,
     idScreens,
+    idleSheet,
     scoreboard,
     heartsContainer,
     music,
@@ -70,6 +71,7 @@ loader.onProgress.add(loadProgressHandler);
 loader
   .add('images/screens-spritesheet.json')
   .add('images/obj-spritesheet.json')
+  .add('images/farmer-idle.json')
   .add('images/ground.jpg')
   .load(setup);
 
@@ -80,6 +82,7 @@ function createGameObjects() {
   // Load sprite sheets
   idScreens = resources["images/screens-spritesheet.json"].textures;
   idObjects = resources["images/obj-spritesheet.json"].textures;
+  idleSheet  = resources["images/farmer-idle.json"];//.spritesheet.animations["farmer-idle"];
   ground = resources["images/ground.jpg"].texture;
 
   // Game scenes
@@ -87,7 +90,7 @@ function createGameObjects() {
   gameScene.visible = false;
 
   // Create farmer
-  farmer = createPlayer(idObjects);
+  farmer = createPlayer(idleSheet);
   gameScene.addChild(farmer);
 
   // Create hearts container
