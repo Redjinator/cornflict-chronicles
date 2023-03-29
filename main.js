@@ -72,17 +72,17 @@ let currentState = TitleScreenState;
 // Loader
 loader.onProgress.add(loadProgressHandler);
 loader
-  .add("images/screens-spritesheet.json")
-  .add("images/obj-spritesheet.json")
-  .add("images/ground.jpg")
-  .add("images/heart.png")
-  .add("IdleFarmer", "images/farmer_idle.json")
-  .add("RunFarmer", "images/farmer_run.json")
+  .add("images/screens-spritesheet.json") // *  Textures
+  .add("images/obj-spritesheet.json") // *  Textures
+  .add("images/ground.jpg") // *  Texture
+  .add("images/heart.png") // *  Texture
+  .add("IdleFarmer", "images/farmer_idle.json") // *  Animation
+  .add("RunFarmer", "images/farmer_run.json") // *  Animation
   .load(setup);
 
 // * CREATE GAME OBJECTS====
 function createGameObjects() {
-  // Load sprite sheets
+  // Create spritesheet.texture(s), and sprite.texture
   idScreens = resources["images/screens-spritesheet.json"].textures;
   idObjects = resources["images/obj-spritesheet.json"].textures;
   ground = resources["images/ground.jpg"].texture;
@@ -91,20 +91,13 @@ function createGameObjects() {
   // Animation
   let runSheet = resources["RunFarmer"].spritesheet;
   runFarmer = new PIXI.AnimatedSprite(runSheet.animations["run_with_gun"]);
-  runFarmer.animationSpeed = 0.2;
-
-
-  // Sprite still frame
-  let gunOutFarmer = new PIXI.Sprite(resources["RunFarmer"].textures["run_with_gun_006"]);
+  runFarmer.animationSpeed = 0.8;
 
   // Animated sprite
   let idleSheet = resources["IdleFarmer"].spritesheet;
   idleFarmer = new PIXI.AnimatedSprite(idleSheet.animations["idle"]);
   idleFarmer.animationSpeed = 0.2;
   idleFarmer.play();
-
-
-  
 
   // Game scenes
   gameScene = new Container();
@@ -169,9 +162,10 @@ export function setup() {
 
   // Creating Bullets
   createBullets(100, idObjects);
+  createForks(100, idObjects);
 
   // Auto-firing weapon (prototype power up)
-  autoFire(farmer, forks, gameScene, true, 500);
+  //autoFire(farmer, forks, gameScene, true, 500);
 
   // Spawn enemies with specifics for each wave
   spawnEnemies(
@@ -332,6 +326,13 @@ function createBullets(bulletLimit, id) {
   for (let i = 0; i < bulletLimit; i++) {
     let bullet = createBullet(id);
     bullets.push(bullet);
+  }
+}
+
+function createForks(forkLimit, id) {
+  for (let i = 0; i < forkLimit; i++) {
+    let fork = createFork(id);
+    forks.push(fork);
   }
 }
 
