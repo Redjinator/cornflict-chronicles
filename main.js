@@ -15,7 +15,7 @@ import { loadProgressHandler } from "./helpers/loadProgress.js";
 import { createBackground } from "./helpers/createBackground.js";
 import { createPlayer } from "./entities/player.js";
 import { moveEnemies } from "./entities/enemyMovement.js";
-import { createAutoFireForks, createBullet } from "./entities/bullet.js";
+import { createBullet } from "./entities/bullet.js";
 import { moveBullets } from "./entities/bulletMovement.js";
 import { shoot } from "./entities/shoot.js";
 import { spawnEnemies } from "./entities/spawn.js";
@@ -53,9 +53,8 @@ let titleScreen,
   ground,
   idObjects,
   idScreens,
-  idleSheet,
-  stillFarmer,
-  animatedFarmer,
+  runFarmer,
+  idleFarmer,
   heart,
   scoreboard,
   heartsContainer,
@@ -63,7 +62,6 @@ let titleScreen,
   timer,
   timerText,
   bgBackground,
-  deadSheet,
   dayNightOverlay;
 
 let bullets;
@@ -91,27 +89,29 @@ function createGameObjects() {
   heart = resources["images/heart.png"].texture;
 
   // Animation
-  idleSheet = resources["IdleFarmer"].spritesheet;
   let runSheet = resources["RunFarmer"].spritesheet;
+  runFarmer = new PIXI.AnimatedSprite(runSheet.animations["run_with_gun"]);
+  runFarmer.animationSpeed = 0.2;
 
-  // Sprite made from still frame of an animation
-  stillFarmer = new PIXI.Sprite(
-    resources["RunFarmer"].textures["run_with_gun_007"]
-  );
+
+  // Sprite still frame
+  let gunOutFarmer = new PIXI.Sprite(resources["RunFarmer"].textures["run_with_gun_006"]);
 
   // Animated sprite
-  animatedFarmer = new PIXI.AnimatedSprite(idleSheet.animations["idle"]);
-  animatedFarmer.animationSpeed = 0.2;
-  animatedFarmer.play();
+  let idleSheet = resources["IdleFarmer"].spritesheet;
+  idleFarmer = new PIXI.AnimatedSprite(idleSheet.animations["idle"]);
+  idleFarmer.animationSpeed = 0.2;
+  idleFarmer.play();
 
-  function createStillFrame() {}
+
+  
 
   // Game scenes
   gameScene = new Container();
   gameScene.visible = false;
 
   // Create farmer
-  farmer = createPlayer(stillFarmer);
+  farmer = createPlayer(runFarmer);
   gameScene.addChild(farmer);
 
   // Create hearts container
