@@ -50,12 +50,12 @@ let titleScreen,
   gameScene,
   gameOver,
   farmer,
-  ground,
-  idObjects,
-  idScreens,
+  groundTexture,
+  objectTextures,
+  screenTextures,
   runFarmer,
   idleFarmer,
-  heart,
+  heartTexture,
   scoreboard,
   heartsContainer,
   music,
@@ -83,10 +83,10 @@ loader
 // * CREATE GAME OBJECTS====
 function createGameObjects() {
   // Create spritesheet.texture(s), and sprite.texture
-  idScreens = resources["images/screens-spritesheet.json"].textures;
-  idObjects = resources["images/obj-spritesheet.json"].textures;
-  ground = resources["images/ground.jpg"].texture;
-  heart = resources["images/heart.png"].texture;
+  screenTextures = resources["images/screens-spritesheet.json"].textures;
+  objectTextures = resources["images/obj-spritesheet.json"].textures;
+  groundTexture = resources["images/ground.jpg"].texture;
+  heartTexture = resources["images/heart.png"].texture;
 
   // Animation
   let runSheet = resources["RunFarmer"].spritesheet;
@@ -108,7 +108,7 @@ function createGameObjects() {
   gameScene.addChild(farmer);
 
   // Create hearts container
-  heartsContainer = createHearts(app, heart);
+  heartsContainer = createHearts(app, heartTexture);
   heartsContainer.position.set(10, 10);
   gameScene.addChild(heartsContainer);
 
@@ -117,7 +117,7 @@ function createGameObjects() {
   gameScene.addChild(scoreboard.scoreboard);
 
   // Create background
-  bgBackground = createBackground(new Sprite(ground).texture, app);
+  bgBackground = createBackground(new Sprite(groundTexture).texture, app);
 
   // Create day/night overlay
   createDayNightOverlay();
@@ -126,10 +126,10 @@ function createGameObjects() {
   music = new Audio("/audio/music/InHeavyMetal.mp3");
 
   // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame, idScreens);
+  titleScreen = new TitleScreen(app, startGame, screenTextures);
 
   // Create game over screen
-  gameOver = new GameOver(app, scoreboard, setup, idScreens);
+  gameOver = new GameOver(app, scoreboard, setup, screenTextures);
 
   // Timer
   createTimerText();
@@ -161,8 +161,8 @@ export function setup() {
   setupEventListeners();
 
   // Creating Bullets
-  createBullets(100, idObjects);
-  createForks(100, idObjects);
+  createBullets(100, objectTextures);
+  
 
   // Auto-firing weapon (prototype power up)
   //autoFire(farmer, forks, gameScene, true, 500);
@@ -175,7 +175,7 @@ export function setup() {
     config.enemySpeed,
     gameScene,
     enemies,
-    idObjects,
+    objectTextures,
     app,
     farmer
   );
@@ -236,7 +236,7 @@ function play(delta) {
 
 // * END GAME START
 function endGame() {
-  gameOver = new GameOver(app, scoreboard.score, startGame, idScreens);
+  gameOver = new GameOver(app, scoreboard.score, startGame, screenTextures);
   app.stage.addChild(gameOver.gameOverScene);
   app.stage.removeChild(gameScene);
 
@@ -322,19 +322,13 @@ function setupEventListeners() {
   });
 } // ! Event Listeners
 
-function createBullets(bulletLimit, id) {
-  for (let i = 0; i < bulletLimit; i++) {
-    let bullet = createBullet(id);
-    bullets.push(bullet);
+function createBullets(projectileLimit, texture) {
+  for (let i = 0; i < projectileLimit; i++) {
+    let projectile = createBullet(texture);
+    bullets.push(projectile);
   }
 }
 
-function createForks(forkLimit, id) {
-  for (let i = 0; i < forkLimit; i++) {
-    let fork = createFork(id);
-    forks.push(fork);
-  }
-}
 
 function playGameOverMusic() {
   music.pause();
