@@ -55,16 +55,16 @@ export default class Player extends Container {
     this.removeChild(this.shootAnimation);
 
     // Add the animations
-    if (
-      animation === "run") { this.addChild(this.runAnimation);
-    } else if (
-      animation === "idle") { this.addChild(this.idleAnimation);
-    } else if (
-      animation === "hurt") { this.addChild(this.hurtAnimation);
-    } else if (
-      animation === "die") { this.addChild(this.deathAnimation);
-    } else if (
-      animation === "shoot") { this.addChild(this.shootAnimation);
+    if (animation === "run") {
+      this.addChild(this.runAnimation);
+    } else if (animation === "idle") {
+      this.addChild(this.idleAnimation);
+    } else if (animation === "hurt") {
+      this.addChild(this.hurtAnimation);
+    } else if (animation === "die") {
+      this.addChild(this.deathAnimation);
+    } else if (animation === "shoot") {
+      this.addChild(this.shootAnimation);
     } else console.error("Animation not found:", animation);
   }
 }

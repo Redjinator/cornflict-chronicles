@@ -28,13 +28,12 @@ import { Timer } from "./helpers/timer.js";
 import { rotateTowards } from "./helpers/rotateTowards.js";
 import { Sprite } from "pixi.js";
 import { setupKeyboard } from "./entities/keyboardMovement.js";
-import { EnemyBig, createEnemyBig, ChasePlayerStrategy } from "./entities/enemyBig.js";
+import {
+  EnemyBig,
+  createEnemyBig,
+  ChasePlayerStrategy,
+} from "./entities/enemyBig.js";
 import { getAnimation } from "./helpers/textureUtils.js";
-
-
-
-
-
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -51,11 +50,6 @@ const app = new Application({
 
 document.body.appendChild(app.view);
 const { width, height } = app.view;
-
-
-
-
-
 
 let titleScreen,
   gameScene,
@@ -102,8 +96,6 @@ loader
 
   .load(setup);
 
-
-
 // * CREATE GAME OBJECTS====
 function createGameObjects() {
   // Create spritesheet.texture(s), and sprite.texture
@@ -117,20 +109,30 @@ function createGameObjects() {
   gameScene = new Container();
   gameScene.visible = false;
 
-
-
-
-
   function createPlayer() {
     const idleTextures = getAnimation(loader.resources, "IdleFarmer", "idle");
     //const runTextures = resources["RunFarmer"].spritesheet.animations["run_with_gun"];
-    const runTextures = getAnimation(loader.resources, "RunFarmer", "run_with_gun")
-    const hurtTextures = getAnimation(loader.resources, "HurtFarmer", "hurt")
-    const deathTextures = getAnimation(loader.resources, "DeathFarmer", "die")
-    const shootTextures = getAnimation(loader.resources, "ShootFarmer", "shoot")
+    const runTextures = getAnimation(
+      loader.resources,
+      "RunFarmer",
+      "run_with_gun"
+    );
+    const hurtTextures = getAnimation(loader.resources, "HurtFarmer", "hurt");
+    const deathTextures = getAnimation(loader.resources, "DeathFarmer", "die");
+    const shootTextures = getAnimation(
+      loader.resources,
+      "ShootFarmer",
+      "shoot"
+    );
 
     let player = new Player();
-    player.initAnimations(idleTextures, shootTextures, runTextures, hurtTextures, deathTextures);
+    player.initAnimations(
+      idleTextures,
+      shootTextures,
+      runTextures,
+      hurtTextures,
+      deathTextures
+    );
     player.x = app.view.width / 2;
     player.y = app.view.height / 2;
     player = setupKeyboard(player);
@@ -175,8 +177,6 @@ function createGameObjects() {
     const alphaIncrement = maxAlpha / timer.startTime;
     dayNightOverlay.alpha = maxAlpha - alphaIncrement * currentTime;
   });
-
-
 } // ! CREATE GAME OBJECTS END
 
 // * INITIALIZE VARIABLES START
@@ -192,7 +192,6 @@ export function setup() {
   // Initialize variables and game objects
   initializeVariables();
   createGameObjects();
-  
 
   // Setup event listeners
   setupEventListeners();
@@ -201,29 +200,26 @@ export function setup() {
   createBullets(100, objectTextures);
 
   // Create Big Enemy
-/*   const chasePlayerStrategy = new ChasePlayerStrategy();
+  /*   const chasePlayerStrategy = new ChasePlayerStrategy();
   bigEnemy = createEnemyBig(loader.resources, chasePlayerStrategy);
   gameScene.addChild(bigEnemy); */
-
 
   // Auto-firing weapon (prototype power up)
   //autoFire(farmer, forks, gameScene, true, 500);
 
   // Spawn enemies with specifics for each wave
-  
-    
 
-    spawnEnemies(
-      waveConfig.numWaves,
-      waveConfig.waveDelaySec,
-      waveConfig.enemyCount,
-      waveConfig.enemySpeed,
-      gameScene,
-      enemies,
-      ecornsTextures,
-      app,
-      farmer
-    );
+  spawnEnemies(
+    waveConfig.numWaves,
+    waveConfig.waveDelaySec,
+    waveConfig.enemyCount,
+    waveConfig.enemySpeed,
+    gameScene,
+    enemies,
+    ecornsTextures,
+    app,
+    farmer
+  );
 
   // Add title and game screen to stage
   app.stage.addChild(titleScreen.titleScene);
@@ -231,11 +227,6 @@ export function setup() {
 
   // Start game loop
   app.ticker.add((delta) => gameLoop(delta));
-
-
-
-
-
 }
 // ! SETUP END
 
@@ -243,12 +234,10 @@ export function setup() {
 function gameLoop(delta) {
   if (currentState === PlayState) {
     play(delta);
-
   }
 
   // Check for 0 hearts (game over)
   if (currentState == PlayState && heartsContainer.children.length == 0) {
-
     farmer.setAnimation("die");
 
     setTimeout(() => {
@@ -265,14 +254,13 @@ function play(delta) {
   // Play music
   playMusic();
 
-  if(timer.currentTime > 0 && timer.currentTime < 10) {
+  if (timer.currentTime > 0 && timer.currentTime < 10) {
     timerText.style.fill = 0xff0000;
-  } else if(timer.currentTime > 10 && timer.currentTime < 20) {
+  } else if (timer.currentTime > 10 && timer.currentTime < 20) {
     timerText.style.fill = 0xffff00;
-  } else if(timer.currentTime > 20 && timer.currentTime < 30) {
+  } else if (timer.currentTime > 20 && timer.currentTime < 30) {
     timerText.style.fill = 0x00ff00;
   }
-
 
   // Farmer movement since last frame, use to calculate movement of enemies and bullets with infinite scroll bg
   const farmerDelta = (delta = {
@@ -386,7 +374,7 @@ function setupEventListeners() {
     farmer.rotation = rotateTowards(event, farmer);
   });
 
-/*   app.stage.on("pointerdown", (event) => {
+  /*   app.stage.on("pointerdown", (event) => {
     shoot(farmer, bullets, gameScene, new Audio(resources["shoot"].url));
   });
  */
@@ -410,7 +398,6 @@ function createBullets(projectileLimit, texture) {
     bullets.push(projectile);
   }
 }
-
 
 function playGameOverMusic() {
   if (music.isPlaying) {

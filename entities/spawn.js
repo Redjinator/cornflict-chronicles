@@ -24,7 +24,7 @@ export function spawnEnemies(
         let enemy = new Enemy(id, speed, gameScene);
         let side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
         let enemySpacing =
-          Math.floor(Math.random() * (app.view.width + app.view.height)) + 500; 
+          Math.floor(Math.random() * (app.view.width + app.view.height)) + 500;
 
         // Set the enemy's initial position based on the chosen side
         switch (side) {

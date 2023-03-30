@@ -15,9 +15,6 @@ export class Enemy extends Sprite {
       enemy = "ecorn_limesm";
     }
 
-    
-
-
     super(id[enemy]);
     this.scale.set(0.2);
     this.anchor.set(0.5);
@@ -27,7 +24,6 @@ export class Enemy extends Sprite {
     this.speed = Math.random() * speed;
     this.filters = [dropShadowFilter];
     this.name = enemy;
-
   }
 }
 
@@ -37,5 +33,3 @@ const dropShadowFilter = new DropShadowFilter({
   color: 0x000000,
   alpha: 0.8,
 });
-
-

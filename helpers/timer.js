@@ -1,7 +1,6 @@
 import { waveConfig } from "../config";
 
 export class Timer {
-
   constructor(text, endGame, updateOverlayAlphaCallback) {
     this.endGame = endGame;
     this.text = text;
@@ -41,4 +40,3 @@ export class Timer {
     this.text.text = `Time: ${this.currentTime}`;
   }
 }
-
