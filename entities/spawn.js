@@ -1,12 +1,21 @@
-import { Enemy } from './enemy.js';
+import { Enemy } from "./enemy.js";
 
-
-export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, gameScene, enemies, id, app, farmer) {
+export function spawnEnemies(
+  numWaves,
+  waveDelaySec,
+  enemiesPerWave,
+  speed,
+  gameScene,
+  enemies,
+  id,
+  app,
+  farmer
+) {
   let enemyCount = 0;
 
   for (let wave = 0; wave < numWaves; wave++) {
     let waveEnemies = 0;
-    let spawnInterval = (waveDelaySec*10000) / enemiesPerWave;
+    let spawnInterval = (waveDelaySec * 10000) / enemiesPerWave;
 
     let spawnEnemy = setInterval(() => {
       if (waveEnemies >= enemiesPerWave) {
@@ -14,7 +23,8 @@ export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, game
       } else {
         let enemy = new Enemy(id, speed, gameScene);
         let side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
-        let enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 500; // randomly choose a distance between 50 and the diagonal of the screen
+        let enemySpacing =
+          Math.floor(Math.random() * (app.view.width + app.view.height)) + 500; 
 
         // Set the enemy's initial position based on the chosen side
         switch (side) {
@@ -36,10 +46,8 @@ export function spawnEnemies(numWaves, waveDelaySec, enemiesPerWave, speed, game
             break;
         }
 
-        // sound when spawning
-
         gameScene.addChild(enemy);
-        enemies.push(enemy); // I should make this clearer, this is the array of enemies that is currently in the game
+        enemies.push(enemy);
         enemyCount++;
         waveEnemies++;
       }

@@ -13,10 +13,10 @@ export function setupKeyboard(player) {
     player.vx = 0;
     player.vy = 0;
 
+
     //Left arrow key `press` method
     left.press = () => {
       startAnimation(player);
-      player.accelerationX = -player.acceleration;
     if (up.isDown) {
     player.vx = -5;
     player.vy = -5;
@@ -30,9 +30,8 @@ export function setupKeyboard(player) {
     };
 
     left.release = () => {
-      stopAnimation(player);
-      player.accelerationX = 0;
     if (!right.isDown && !up.isDown && !down.isDown) {
+      stopAnimation(player);
     player.vx = 0;
     player.vy = 0;
     } else if (right.isDown) {
@@ -45,13 +44,11 @@ export function setupKeyboard(player) {
     player.vx = 0;
     player.vy = 5;
     }
-
     };
 
     //Up
     up.press = () => {
       startAnimation(player);
-      player.accelerationY = -player.acceleration;
     if (left.isDown) {
     player.vx = -5;
     player.vy = -5;
@@ -65,9 +62,8 @@ export function setupKeyboard(player) {
     };
 
     up.release = () => {
-       stopAnimation(player);
-       player.accelerationY = 0;
     if (!down.isDown && !left.isDown && !right.isDown) {
+      stopAnimation(player);
     player.vx = 0;
     player.vy = 0;
     } else if (right.isDown) {
@@ -85,23 +81,21 @@ export function setupKeyboard(player) {
     //Right
     right.press = () => {
       startAnimation(player);
-      player.accelerationX = -player.acceleration;
     if (up.isDown) {
-    player.vx = 5;
-    player.vy = -5;
+      player.vx = 5;
+      player.vy = -5;
     } else if (down.isDown) {
-    player.vx = 5;
-    player.vy = 5;
+      player.vx = 5;
+      player.vy = 5;
     } else {
-    player.vx = 5;
-    player.vy = 0;
+      player.vx = 5;
+      player.vy = 0;
     }
     };
 
     right.release = () => {
-      stopAnimation(player);
-      player.accelerationX = 0;
     if (!left.isDown && !up.isDown && !down.isDown) {
+      stopAnimation(player);
     player.vx = 0;
     player.vy = 0;
     } else if (left.isDown) {
@@ -119,7 +113,6 @@ export function setupKeyboard(player) {
     //Down
     down.press = () => {
       startAnimation(player);
-      player.accelerationY = -player.acceleration;
     if (left.isDown) {
     player.vx = -5;
     player.vy = 5;
@@ -133,9 +126,8 @@ export function setupKeyboard(player) {
     };
 
     down.release = () => {
-      stopAnimation(player);
-      player.accelerationY = 0;
     if (!up.isDown && !left.isDown && !right.isDown) {
+      stopAnimation(player);
     player.vx = 0;
     player.vy = 0;
     } else if (right.isDown) {
@@ -191,11 +183,10 @@ function keyboard(keyCode) {
     return key;
   }
 
-  function startAnimation(player) {
-    player.runFarmer.play();
+  export function startAnimation(player) {
+    player.setAnimation("run");
   }
-
-  function stopAnimation(player) {
-    player.runFarmer.stop();
+  
+  export function stopAnimation(player) {
+    player.setAnimation("idle");
   }
-

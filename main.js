@@ -5,7 +5,7 @@ Course: DGL-209 Capstone Project
 Modified: 2023-03-015
 */
 
-import { config } from "./config.js";
+import { waveConfig } from "./config.js";
 import Scoreboard from "./scenes/scoreboard.js";
 import TitleScreen from "./scenes/titlescreen.js";
 import GameOver from "./scenes/gameover.js";
@@ -13,7 +13,7 @@ import { Container } from "pixi.js";
 import { createHearts } from "./entities/hearts.js";
 import { loadProgressHandler } from "./helpers/loadProgress.js";
 import { createBackground } from "./helpers/createBackground.js";
-import { createPlayer } from "./entities/player.js";
+import Player from "./entities/player.js";
 import { moveEnemies } from "./entities/enemyMovement.js";
 import { createBullet } from "./entities/bullet.js";
 import { moveBullets } from "./entities/bulletMovement.js";
@@ -26,8 +26,15 @@ import {
 } from "./helpers/stateMachine.js";
 import { Timer } from "./helpers/timer.js";
 import { rotateTowards } from "./helpers/rotateTowards.js";
-import { autoFire } from "./helpers/autoFire.js";
 import { Sprite } from "pixi.js";
+import { setupKeyboard } from "./entities/keyboardMovement.js";
+import { EnemyBig, createEnemyBig, ChasePlayerStrategy } from "./entities/enemyBig.js";
+import { getAnimation } from "./helpers/textureUtils.js";
+
+
+
+
+
 
 const Application = PIXI.Application,
   loader = PIXI.Loader.shared,
@@ -37,7 +44,6 @@ const app = new Application({
   width: 1280,
   height: 720,
   view: document.getElementById("game-canvas"),
-  //context: create2DContextWithWillReadFrequently(1280, 720),
   antialias: true,
   transparent: false,
   resolution: 1,
@@ -46,6 +52,11 @@ const app = new Application({
 document.body.appendChild(app.view);
 const { width, height } = app.view;
 
+
+
+
+
+
 let titleScreen,
   gameScene,
   gameOver,
@@ -53,10 +64,12 @@ let titleScreen,
   groundTexture,
   objectTextures,
   screenTextures,
-  runFarmer,
-  idleFarmer,
+  ecornsTextures,
+  bigEnemy,
+  farmerDelta,
   heartTexture,
   scoreboard,
+  textTextures,
   heartsContainer,
   music,
   timer,
@@ -66,45 +79,67 @@ let titleScreen,
 
 let bullets;
 let enemies;
-let forks;
 let currentState = TitleScreenState;
+let isRapidFiring = false;
 
 // Loader
 loader.onProgress.add(loadProgressHandler);
 loader
   .add("images/screens-spritesheet.json") // *  Textures
   .add("images/obj-spritesheet.json") // *  Textures
+  .add("images/ecorns-spritesheet.json") // *  Textures
+  .add("images/text-spritesheet.json") // *  Textures
   .add("images/ground.jpg") // *  Texture
   .add("images/heart.png") // *  Texture
   .add("IdleFarmer", "images/farmer_idle.json") // *  Animation
   .add("RunFarmer", "images/farmer_run.json") // *  Animation
+  .add("HurtFarmer", "images/farmer_hurt.json") // *  Animation
+  .add("DeathFarmer", "images/farmer_death.json") // *  Animation
+  .add("ShootFarmer", "images/farmer_shoot.json") // *  Animation
+  .add("metal", "audio/music/InHeavyMetal.mp3") // *  Audio
+  .add("boomopera", "audio/music/Boomopera.mp3") // *  Audio
+  .add("shoot", "audio/shot.mp3") // *  Audio
+
   .load(setup);
+
+
 
 // * CREATE GAME OBJECTS====
 function createGameObjects() {
   // Create spritesheet.texture(s), and sprite.texture
   screenTextures = resources["images/screens-spritesheet.json"].textures;
   objectTextures = resources["images/obj-spritesheet.json"].textures;
+  ecornsTextures = resources["images/ecorns-spritesheet.json"].textures;
+  textTextures = resources["images/text-spritesheet.json"].textures;
   groundTexture = resources["images/ground.jpg"].texture;
   heartTexture = resources["images/heart.png"].texture;
-
-  // Animation
-  let runSheet = resources["RunFarmer"].spritesheet;
-  runFarmer = new PIXI.AnimatedSprite(runSheet.animations["run_with_gun"]);
-  runFarmer.animationSpeed = 0.8;
-
-  // Animated sprite
-  let idleSheet = resources["IdleFarmer"].spritesheet;
-  idleFarmer = new PIXI.AnimatedSprite(idleSheet.animations["idle"]);
-  idleFarmer.animationSpeed = 0.2;
-  idleFarmer.play();
-
   // Game scenes
   gameScene = new Container();
   gameScene.visible = false;
 
+
+
+
+
+  function createPlayer() {
+    const idleTextures = getAnimation(loader.resources, "IdleFarmer", "idle");
+    //const runTextures = resources["RunFarmer"].spritesheet.animations["run_with_gun"];
+    const runTextures = getAnimation(loader.resources, "RunFarmer", "run_with_gun")
+    const hurtTextures = getAnimation(loader.resources, "HurtFarmer", "hurt")
+    const deathTextures = getAnimation(loader.resources, "DeathFarmer", "die")
+    const shootTextures = getAnimation(loader.resources, "ShootFarmer", "shoot")
+
+    let player = new Player();
+    player.initAnimations(idleTextures, shootTextures, runTextures, hurtTextures, deathTextures);
+    player.x = app.view.width / 2;
+    player.y = app.view.height / 2;
+    player = setupKeyboard(player);
+
+    return player;
+  }
+
   // Create farmer
-  farmer = createPlayer(runFarmer);
+  farmer = createPlayer();
   gameScene.addChild(farmer);
 
   // Create hearts container
@@ -118,15 +153,17 @@ function createGameObjects() {
 
   // Create background
   bgBackground = createBackground(new Sprite(groundTexture).texture, app);
+  app.stage.addChild(bgBackground);
 
   // Create day/night overlay
   createDayNightOverlay();
 
   // Gameplay Music
-  music = new Audio("/audio/music/InHeavyMetal.mp3");
+  music = new Audio(resources["metal"].url);
 
   // Create Titlescreen
-  titleScreen = new TitleScreen(app, startGame, screenTextures);
+
+  titleScreen = new TitleScreen(app, startGame, screenTextures, textTextures);
 
   // Create game over screen
   gameOver = new GameOver(app, scoreboard, setup, screenTextures);
@@ -139,14 +176,13 @@ function createGameObjects() {
     dayNightOverlay.alpha = maxAlpha - alphaIncrement * currentTime;
   });
 
-  forks.forEach((fork) => gameScene.addChild(fork));
+
 } // ! CREATE GAME OBJECTS END
 
 // * INITIALIZE VARIABLES START
 function initializeVariables() {
   bullets = [];
   enemies = [];
-  forks = [];
 } // ! INITIALIZE VARIABLES END
 
 // * ==========================================================================
@@ -156,29 +192,38 @@ export function setup() {
   // Initialize variables and game objects
   initializeVariables();
   createGameObjects();
+  
 
   // Setup event listeners
   setupEventListeners();
 
   // Creating Bullets
   createBullets(100, objectTextures);
-  
+
+  // Create Big Enemy
+/*   const chasePlayerStrategy = new ChasePlayerStrategy();
+  bigEnemy = createEnemyBig(loader.resources, chasePlayerStrategy);
+  gameScene.addChild(bigEnemy); */
+
 
   // Auto-firing weapon (prototype power up)
   //autoFire(farmer, forks, gameScene, true, 500);
 
   // Spawn enemies with specifics for each wave
-  spawnEnemies(
-    config.numWaves,
-    config.waveDelaySec,
-    config.enemyCount,
-    config.enemySpeed,
-    gameScene,
-    enemies,
-    objectTextures,
-    app,
-    farmer
-  );
+  
+    
+
+    spawnEnemies(
+      waveConfig.numWaves,
+      waveConfig.waveDelaySec,
+      waveConfig.enemyCount,
+      waveConfig.enemySpeed,
+      gameScene,
+      enemies,
+      ecornsTextures,
+      app,
+      farmer
+    );
 
   // Add title and game screen to stage
   app.stage.addChild(titleScreen.titleScene);
@@ -186,6 +231,11 @@ export function setup() {
 
   // Start game loop
   app.ticker.add((delta) => gameLoop(delta));
+
+
+
+
+
 }
 // ! SETUP END
 
@@ -193,13 +243,20 @@ export function setup() {
 function gameLoop(delta) {
   if (currentState === PlayState) {
     play(delta);
+
   }
 
   // Check for 0 hearts (game over)
   if (currentState == PlayState && heartsContainer.children.length == 0) {
-    endGame();
 
-    playGameOverMusic();
+    farmer.setAnimation("die");
+
+    setTimeout(() => {
+      endGame();
+    }, 10000);
+
+    //playGameOverMusic();
+    //bigEnemy.move(farmer, farmerDelta);
   }
 } // ! GAME LOOP END
 
@@ -207,6 +264,15 @@ function gameLoop(delta) {
 function play(delta) {
   // Play music
   playMusic();
+
+  if(timer.currentTime > 0 && timer.currentTime < 10) {
+    timerText.style.fill = 0xff0000;
+  } else if(timer.currentTime > 10 && timer.currentTime < 20) {
+    timerText.style.fill = 0xffff00;
+  } else if(timer.currentTime > 20 && timer.currentTime < 30) {
+    timerText.style.fill = 0x00ff00;
+  }
+
 
   // Farmer movement since last frame, use to calculate movement of enemies and bullets with infinite scroll bg
   const farmerDelta = (delta = {
@@ -230,8 +296,11 @@ function play(delta) {
     farmer
   );
 
+  // Update bigEnemy movement
+  //bigEnemy.move(farmer, farmerDelta);
+
   // Check score for win
-  scoreboard.score >= config.scoreToWin ? endGame() : null;
+  scoreboard.score >= waveConfig.scoreToWin ? endGame() : null;
 } // ! PLAY END
 
 // * END GAME START
@@ -240,7 +309,7 @@ function endGame() {
   app.stage.addChild(gameOver.gameOverScene);
   app.stage.removeChild(gameScene);
 
-  // Stop music
+  // Stop the game music
   music.pause();
 
   // Reset score
@@ -291,7 +360,7 @@ function stateTransition(nextState = TitleScreenState) {
 // *HELPER FUNCTIONS
 //*=========================================================
 function createTimerText() {
-  timerText = new PIXI.Text("Time: 30", {
+  timerText = new PIXI.Text("Time: 60", {
     fontFamily: "Arial",
     fontSize: 36,
     fill: "white",
@@ -317,8 +386,21 @@ function setupEventListeners() {
     farmer.rotation = rotateTowards(event, farmer);
   });
 
-  app.stage.on("pointerdown", (event) => {
-    shoot(farmer, bullets, gameScene);
+/*   app.stage.on("pointerdown", (event) => {
+    shoot(farmer, bullets, gameScene, new Audio(resources["shoot"].url));
+  });
+ */
+  app.view.addEventListener("mousedown", () => {
+    if (currentState === PlayState) {
+      farmer.setAnimation("shoot");
+      isRapidFiring = true;
+      rapidFire();
+    }
+  });
+
+  app.view.addEventListener("mouseup", () => {
+    farmer.setAnimation("idle");
+    isRapidFiring = false;
   });
 } // ! Event Listeners
 
@@ -331,17 +413,33 @@ function createBullets(projectileLimit, texture) {
 
 
 function playGameOverMusic() {
-  music.pause();
+  if (music.isPlaying) {
+    music.pause();
+    music.isPlaying = false;
+  }
 
-  let gameOverMusic = new Audio("/audio/game-over.mp3");
+  let gameOverMusic = new Audio(resources["boomopera"].url);
   gameOverMusic.loop = false;
-  gameOverMusic.play();
+
+  if (!gameOverMusic.isPlaying) {
+    gameOverMusic.play();
+    gameOverMusic.isPlaying = true;
+  }
+
+  gameOverMusic.onended = () => {
+    gameOverMusic.isPlaying = false;
+  };
 }
 
 function playMusic() {
   if (!music.isPlaying) {
     music.play();
+    music.isPlaying = true;
   }
+
+  music.onended = () => {
+    music.isPlaying = false;
+  };
 }
 
 // Move tiling background based on farmer movement input
@@ -357,4 +455,11 @@ function createDayNightOverlay() {
   dayNightOverlay.endFill();
   dayNightOverlay.alpha = 0;
   gameScene.addChild(dayNightOverlay);
+}
+
+function rapidFire() {
+  if (isRapidFiring) {
+    shoot(farmer, bullets, gameScene, new Audio(resources["shoot"].url));
+    setTimeout(rapidFire, 70); // Adjust the delay between shots as needed
+  }
 }

@@ -1,9 +1,11 @@
+import { waveConfig } from "../config";
+
 export class Timer {
 
   constructor(text, endGame, updateOverlayAlphaCallback) {
     this.endGame = endGame;
     this.text = text;
-    this.startTime = 30; // set initial time to 90 seconds
+    this.startTime = waveConfig.startTime;
     this.currentTime = this.startTime;
     this.timerId = null; // id of the timer to see if it's running
     this.updateOverlayAlphaCallback = updateOverlayAlphaCallback;
