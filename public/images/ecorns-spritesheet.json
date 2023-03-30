@@ -1,0 +1,44 @@
+{"frames": {
+
+"ecorn_bluesm":
+{
+	"frame": {"x":0,"y":0,"w":241,"h":215},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":241,"h":215},
+	"sourceSize": {"w":241,"h":215}
+},
+"ecorn_limesm":
+{
+	"frame": {"x":241,"y":0,"w":241,"h":215},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":241,"h":215},
+	"sourceSize": {"w":241,"h":215}
+},
+"ecorn_redsm":
+{
+	"frame": {"x":482,"y":0,"w":241,"h":215},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":241,"h":215},
+	"sourceSize": {"w":241,"h":215}
+},
+"ecorn_yellow":
+{
+	"frame": {"x":723,"y":0,"w":241,"h":215},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":241,"h":215},
+	"sourceSize": {"w":241,"h":215}
+}},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "ecorns-spritesheet.png",
+	"format": "RGBA8888",
+	"size": {"w":964,"h":215},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:99a7e22955bb32da1a4fcf86374a099e:e5543eba37ff747e1d800c8ff7a4f50c:5e70dadefc2ef07c2903ca6b1dbc7fae$"
+}
+}

@@ -1,0 +1,31 @@
+{"frames": {
+
+"shoot_001":
+{
+	"frame": {"x":1,"y":1,"w":487,"h":347},
+	"rotated": true,
+	"trimmed": true,
+	"spriteSourceSize": {"x":275,"y":163,"w":487,"h":347},
+	"sourceSize": {"w":924,"h":668}
+},
+"shoot_003":
+{
+	"frame": {"x":350,"y":1,"w":602,"h":417},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":224,"y":97,"w":602,"h":417},
+	"sourceSize": {"w":924,"h":668}
+}},
+"animations": {
+	"shoot": ["shoot_001","shoot_003"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.1",
+	"image": "farmer_shoot.png",
+	"format": "RGBA8888",
+	"size": {"w":953,"h":489},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:1210143d1971000531dfc80bedfea445:cfcd213d6ab22ef1e435f986eca3c5c5:7fe8760d1cba943cae341c4908f90c0b$"
+}
+}
