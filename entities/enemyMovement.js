@@ -14,11 +14,11 @@ export function moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameS
 
   for (let i = 0; i < enemies.length; i++) {
     let enemy = enemies[i];
-    let e = new Victor(enemy.x, enemy.y);
-    let f = new Victor(farmer.x, farmer.y);
-    let d = f.subtract(e);
-    let v = d.normalize().multiplyScalar(enemy.speed);
-    enemy.position.set(enemy.position.x + v.x - farmerDelta.x, enemy.position.y + v.y - farmerDelta.y);
+      let e = new Victor(enemy.x, enemy.y);
+      let f = new Victor(farmer.x, farmer.y);
+      let d = f.subtract(e);
+      let v = d.normalize().multiplyScalar(enemy.speed);
+      enemy.position.set(enemy.position.x + v.x - farmerDelta.x, enemy.position.y + v.y - farmerDelta.y);
 
     const playerPos = {x: farmer.x, y: farmer.y};
     const enemyPos = {x: enemy.x, y: enemy.y};
@@ -32,24 +32,30 @@ export function moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameS
     enemy.rotation = angle + Math.PI * 1.5;
 
     if (hitTestRectangle(farmer, enemy)) {
-      playOuchSounds(redFlash)
+      playOuchSounds(redFlash);
+      farmer.setAnimation('hurt');
       gameScene.removeChild(enemy);
       enemies.splice(i, 1);
-      heartsContainer.removeChildAt(heartsContainer.children.length - 1);
-      break;
+      if (heartsContainer.children.length > 0) {
+        heartsContainer.removeChildAt(heartsContainer.children.length - 1);
+      } else {
+        console.log('game over');
+        break;
+      }
     }
   }
 
   function playOuchSounds(flash) {
     let ouch1 = new Audio('audio/ouch-1a.mp3');
     let ouch2 = new Audio('audio/ouch-2a.mp3');
+    let ouch3 = new Audio('audio/ouch-3a.mp3');
 
-    if(Math.random() > 0.5) {
+    if(Math.random() < 0.4) {
       ouch1.play();
-      console.log('ouch1');
-    } else {
+    } else if (Math.random() < 0.8) {
       ouch2.play();
-      console.log('ouch2');
+    } else {
+      ouch3.play();
     }
 
     redFlash.alpha = 0.5;

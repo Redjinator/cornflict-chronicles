@@ -1,11 +1,13 @@
-export function shoot(farmer, bullets, gameScene) {
+export function shoot(farmer, bullets, gameScene, shootSound) {
+  
+
   for (let i=0; i<bullets.length; i++) {
     let bullet = bullets[i];
     if (!bullet.parent) {
-      bullet.x = farmer.x;
-      bullet.y = farmer.y;
+      bullet.x = 640;
+      bullet.y = 360;
       bullet.rotation = (farmer.rotation + Math.PI / 2);
-      const speed = 15;
+      const speed = 25;
       bullet.vx = Math.cos(farmer.rotation) * speed;
       bullet.vy = Math.sin(farmer.rotation) * speed;
       bullet.zIndex = 0;
@@ -15,11 +17,9 @@ export function shoot(farmer, bullets, gameScene) {
 
       setTimeout(() => {
         bullet.alpha = 1;
-      }, 70);
+      }, 50);
 
-      let instance = new Audio("/audio/shot.mp3");
-      instance.volume = 0.1;
-      instance.play();
+      shootSound.play();
       break;
     }
   }
