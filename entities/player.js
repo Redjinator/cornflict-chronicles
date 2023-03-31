@@ -4,40 +4,41 @@ export default class Player extends Container {
   constructor() {
     super();
     this.previousAnimation = null;
+    this.anchorY = 0.59;
   }
 
-  initAnimations(idle, shoot, run, hurt, death) {
+initAnimations(idle, shoot, run, hurt, death) {
     this.idleAnimation = new PIXI.AnimatedSprite(idle);
     this.runAnimation = new PIXI.AnimatedSprite(run);
     this.hurtAnimation = new PIXI.AnimatedSprite(hurt);
     this.deathAnimation = new PIXI.AnimatedSprite(death);
     this.shootAnimation = new PIXI.AnimatedSprite(shoot);
 
-    this.idleAnimation.anchor.set(0.5);
+    this.idleAnimation.anchor.set(0.5, this.anchorY);
     this.idleAnimation.scale.set(0.2);
     this.idleAnimation.animationSpeed = 0.3;
     this.idleAnimation.loop = true;
     this.idleAnimation.play();
 
-    this.runAnimation.anchor.set(0.5);
+    this.runAnimation.anchor.set(0.5, this.anchorY);
     this.runAnimation.scale.set(0.2);
     this.runAnimation.animationSpeed = 0.2;
     this.runAnimation.loop = true;
     this.runAnimation.play();
 
-    this.hurtAnimation.anchor.set(0.5);
+    this.hurtAnimation.anchor.set(0.5, this.anchorY);
     this.hurtAnimation.scale.set(0.2);
     this.hurtAnimation.animationSpeed = 0.1;
     this.hurtAnimation.loop = false;
     this.hurtAnimation.play();
 
-    this.deathAnimation.anchor.set(0.5);
+    this.deathAnimation.anchor.set(0.5, this.anchorY);
     this.deathAnimation.scale.set(0.2);
     this.deathAnimation.animationSpeed = 0.1;
     this.deathAnimation.loop = false;
     this.deathAnimation.play();
 
-    this.shootAnimation.anchor.set(0.5);
+    this.shootAnimation.anchor.set(0.5, this.anchorY);
     this.shootAnimation.scale.set(0.2);
     this.shootAnimation.animationSpeed = 0.3;
     this.shootAnimation.loop = true;
