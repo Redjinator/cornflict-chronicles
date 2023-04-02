@@ -35,8 +35,9 @@ export default class TitleScreen {
     });
 
     this.music = new Audio("/audio/CreepyFX_LongTransition.mp3");
+    this.music.volume = 0.5;
     this.music.loop = false;
-    this.music.autoplay = false;
+    this.music.autoplay = true;
 
     startButton.on("pointerdown", () => {
       this.music.pause();

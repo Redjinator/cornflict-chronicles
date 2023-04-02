@@ -138,7 +138,6 @@ export function setupKeyboard(player) {
       player.vy = -5;
     }
   };
-
   return player;
 }
 
@@ -186,3 +185,5 @@ export function startAnimation(player) {
 export function stopAnimation(player) {
   player.setAnimation("idle");
 }
+
+

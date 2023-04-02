@@ -1,4 +1,4 @@
-import { Container, Text, TextStyle, Graphics, Sprite } from "pixi.js";
+import { Container, Text, TextStyle, Sprite } from "pixi.js";
 
 export default class GameOver {
   constructor(app, scoreboard, restartFunction, id) {

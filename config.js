@@ -1,9 +1,9 @@
 export const waveConfig = {
-  scoreToWin: 100,
-  startTime: 90,
+  scoreToWin: 200,
+  startTime: 60,
   bulletLimit: 100,
-  numWaves: 5,
-  waveDelaySec: 1,
+  numWaves: 8,
+  waveDelaySec: 5,
   enemyCount: 50,
   enemySpeed: 1,
 };

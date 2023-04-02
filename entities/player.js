@@ -28,13 +28,13 @@ initAnimations(idle, shoot, run, hurt, death) {
 
     this.hurtAnimation.anchor.set(0.5, this.anchorY);
     this.hurtAnimation.scale.set(0.2);
-    this.hurtAnimation.animationSpeed = 0.1;
+    this.hurtAnimation.animationSpeed = 0.2;
     this.hurtAnimation.loop = false;
     this.hurtAnimation.play();
 
     this.deathAnimation.anchor.set(0.5, this.anchorY);
     this.deathAnimation.scale.set(0.2);
-    this.deathAnimation.animationSpeed = 0.1;
+    this.deathAnimation.animationSpeed = 0.5;
     this.deathAnimation.loop = false;
     this.deathAnimation.play();
 

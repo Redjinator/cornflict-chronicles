@@ -13,7 +13,7 @@ export function shoot(farmer, bullets, gameScene, shootSound) {
     farmer.zIndex = 1;
     gameScene.addChild(bullet);
 
-
+    shootSound.volume = 0.2;
     shootSound.play();
   }
 }

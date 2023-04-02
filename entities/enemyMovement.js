@@ -46,7 +46,7 @@ export function moveEnemies(
       if (heartsContainer.children.length > 0) {
         heartsContainer.removeChildAt(heartsContainer.children.length - 1);
       } else {
-        console.log("game over");
+        farmer.setAnimation("die");
         break;
       }
     }
