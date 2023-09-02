@@ -4,6 +4,6 @@ export const waveConfig = {
   bulletLimit: 100,
   numWaves: 8,
   waveDelaySec: 5,
-  enemyCount: 50,
-  enemySpeed: 1,
+  enemyCount: 100,
+  enemySpeed: 2,
 };
