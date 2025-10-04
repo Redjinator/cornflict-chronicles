@@ -1,22 +1,28 @@
-export function shoot(farmer, bullets, gameScene, shootSound) {
-  const bullet = getBullet(bullets);
-  if (bullet) {
-    const { x, y, rotation } = farmer;
+export function shoot(farmer, bullets, gameScene, shootSound, weaponSystem) {
+  // Get shot pattern based on weapon level
+  const shotPattern = weaponSystem.getShotPattern(farmer);
+  const barrelOffset = 40;
+
+  let shotsCreated = 0;
+  for (const shot of shotPattern) {
+    const bullet = getBullet(bullets);
+    if (!bullet) break; // No more bullets available
 
     // Offset bullet spawn to the front of the gun barrel
-    const barrelOffset = 40; // Distance from center to gun barrel
-    bullet.x = x + Math.cos(rotation) * barrelOffset;
-    bullet.y = y + Math.sin(rotation) * barrelOffset;
+    bullet.x = shot.x + Math.cos(farmer.rotation) * barrelOffset;
+    bullet.y = shot.y + Math.sin(farmer.rotation) * barrelOffset;
 
-    bullet.rotation = rotation + Math.PI / 2;
-    const speed = 25;
-    bullet.vx = Math.cos(rotation) * speed;
-    bullet.vy = Math.sin(rotation) * speed;
+    bullet.rotation = shot.rotation + Math.PI / 2;
+    bullet.vx = shot.vx;
+    bullet.vy = shot.vy;
     bullet.zIndex = 0;
     bullet.alpha = 1;
     farmer.zIndex = 1;
     gameScene.addChild(bullet);
+    shotsCreated++;
+  }
 
+  if (shotsCreated > 0) {
     shootSound.volume = 0.2;
     shootSound.play();
   }

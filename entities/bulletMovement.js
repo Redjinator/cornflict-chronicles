@@ -8,13 +8,14 @@ export function moveBullets(
   width,
   height,
   farmerDelta,
-  farmer
+  farmer,
+  dropPowerUpCallback
 ) {
   for (let i = 0; i < bullets.length; i++) {
     let bullet = bullets[i];
     if (bullet.parent) {
       moveBullet(bullet, farmerDelta);
-      checkBulletCollision(bullet, enemies, scoreboard, gameScene);
+      checkBulletCollision(bullet, enemies, scoreboard, gameScene, dropPowerUpCallback);
       removeBullet(bullet, gameScene, width, height);
     }
   }
@@ -25,11 +26,17 @@ function moveBullet(bullet, farmerDelta) {
   bullet.y += bullet.vy - farmerDelta.y;
 }
 
-function checkBulletCollision(bullet, enemies, scoreboard, gameScene) {
+function checkBulletCollision(bullet, enemies, scoreboard, gameScene, dropPowerUpCallback) {
   for (let j = 0; j < enemies.length; j++) {
     let enemy = enemies[j];
     if (hitTestRectangle(bullet, enemy)) {
       scoreboard.increaseScore();
+
+      // Drop power-up at enemy position
+      if (dropPowerUpCallback) {
+        dropPowerUpCallback(enemy.x, enemy.y);
+      }
+
       gameScene.removeChild(bullet);
       gameScene.removeChild(enemy);
       enemies.splice(j, 1);

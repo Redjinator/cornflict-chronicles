@@ -24,6 +24,8 @@ import { shoot } from "./entities/shoot.js";
 import { spawnEnemies } from "./entities/spawn.js";
 import { Timer } from "./helpers/timer.js";
 import { ScreenShake } from "./helpers/screenShake.js";
+import { WeaponSystem } from "./helpers/weaponSystem.js";
+import { PowerUpCard } from "./entities/powerup.js";
 import { cullSprites } from "./helpers/spriteculling.js";
 import { rotateTowards } from "./helpers/rotateTowards.js";
 import { setupKeyboard } from "./entities/keyboardMovement.js";
@@ -70,6 +72,8 @@ let titleScreen,
 
 let bullets;
 let enemies;
+let powerUps;
+let weaponSystem;
 let currentState = TitleScreenState;
 let isRapidFiring = false;
 let gameStarted = false;
@@ -77,6 +81,7 @@ let screenShake;
 let isInvincible = false;
 let invincibilityTimer = 0;
 const INVINCIBILITY_DURATION = 1500; // 1.5 seconds in milliseconds
+const POWERUP_DROP_CHANCE = 0.5; // 50% chance to drop power-up (increased for testing)
 
 // Loader
 loader.onProgress.add(loadProgressHandler);
@@ -167,6 +172,8 @@ function createGameObjects() {
 function initializeVariables() {
   bullets = [];
   enemies = [];
+  powerUps = [];
+  weaponSystem = new WeaponSystem();
 } // ! INITIALIZE VARIABLES END
 
 // * ==========================================================================
@@ -240,10 +247,10 @@ function play(delta) {
   ((farmer.vx != 0 || farmer.vy != 0) && farmer.animation != "run") ? farmer.setAnimation("run") : null;
 
   // Farmer movement since last frame, use to calculate movement of enemies and bullets with infinite scroll bg
-  const farmerDelta = (delta = {
+  const farmerDelta = {
     x: farmer.vx * delta,
     y: farmer.vy * delta,
-  });
+  };
 
   // Moves the bg with the farmer
   updateBG(farmerDelta);
@@ -264,8 +271,15 @@ function play(delta) {
     width,
     height,
     farmerDelta,
-    farmer
+    farmer,
+    dropPowerUp
   );
+
+  // Update power-ups
+  updatePowerUps(delta, farmerDelta);
+
+  // Check power-up collisions
+  checkPowerUpCollisions();
 
   // Cull off-screen sprites for performance
   cullSprites(enemies, { width, height });
@@ -273,6 +287,88 @@ function play(delta) {
 
   // Check score for win (removed - win is only by surviving timer)
 } // ! PLAY END
+
+// * POWER-UP FUNCTIONS START
+function updatePowerUps(delta, farmerDelta) {
+  for (let i = powerUps.length - 1; i >= 0; i--) {
+    const powerUp = powerUps[i];
+    powerUp.update(delta, farmerDelta);
+
+    // Remove if off-screen
+    if (powerUp.y > height + 100) {
+      gameScene.removeChild(powerUp);
+      powerUps.splice(i, 1);
+    }
+  }
+}
+
+function checkPowerUpCollisions() {
+  for (let i = powerUps.length - 1; i >= 0; i--) {
+    const powerUp = powerUps[i];
+    const distance = Math.sqrt(
+      Math.pow(farmer.x - powerUp.x, 2) + Math.pow(farmer.y - powerUp.y, 2)
+    );
+
+    if (distance < 50 && !powerUp.collected) {
+      powerUp.collected = true;
+      collectPowerUp(powerUp, i);
+    }
+  }
+}
+
+function collectPowerUp(powerUp, index) {
+  // Upgrade weapon
+  const upgraded = weaponSystem.powerUp();
+
+  // Visual feedback
+  gameScene.removeChild(powerUp);
+  powerUps.splice(index, 1);
+
+  // Create level-up text
+  const levelText = new PIXI.Text(
+    upgraded ? `LEVEL ${weaponSystem.getLevel()}!` : "MAX LEVEL!",
+    {
+      fontFamily: "Arial",
+      fontSize: 32,
+      fill: 0xFFD700,
+      stroke: 0xFF6600,
+      strokeThickness: 4,
+    }
+  );
+  levelText.anchor.set(0.5);
+  levelText.x = farmer.x;
+  levelText.y = farmer.y - 60;
+  gameScene.addChild(levelText);
+
+  // Animate and remove text
+  let textAlpha = 1;
+  let textY = levelText.y;
+  const textInterval = setInterval(() => {
+    textAlpha -= 0.05;
+    textY -= 2;
+    levelText.alpha = textAlpha;
+    levelText.y = textY;
+
+    if (textAlpha <= 0) {
+      gameScene.removeChild(levelText);
+      clearInterval(textInterval);
+    }
+  }, 50);
+
+  // Power-up sound (using yippee sound)
+  const powerUpSound = new Audio("/audio/yippee.mp3");
+  powerUpSound.volume = 0.3;
+  powerUpSound.play();
+}
+
+function dropPowerUp(x, y) {
+  if (Math.random() < POWERUP_DROP_CHANCE) {
+    const powerUp = new PowerUpCard(x, y);
+    powerUps.push(powerUp);
+    gameScene.addChild(powerUp);
+  }
+}
+// ! POWER-UP FUNCTIONS END
 
 // * PAUSE GAME START
 function pauseGame() {
@@ -345,6 +441,14 @@ function endGame(isVictory = false) {
     }
   });
 
+  // Remove all power-ups
+  powerUps.forEach((powerUp) => {
+    if (powerUp.parent) {
+      gameScene.removeChild(powerUp);
+    }
+  });
+  powerUps.length = 0;
+
   // Remove farmer from view
   farmer.visible = false;
 
@@ -379,6 +483,11 @@ function startGame() {
   isInvincible = false;
   invincibilityTimer = 0;
   farmer.alpha = 1;
+
+  // Reset weapon level
+  if (weaponSystem) {
+    weaponSystem.reset();
+  }
 
   // Hide title screen
   titleScreen.titleScene.visible = false;
@@ -607,7 +716,7 @@ function createDayNightOverlay() {
 
 function rapidFire() {
   if (isRapidFiring) {
-    shoot(farmer, bullets, gameScene, new Audio(resources["shoot"].url));
+    shoot(farmer, bullets, gameScene, new Audio(resources["shoot"].url), weaponSystem);
     setTimeout(rapidFire, 70); // Adjust the delay between shots as needed
   }
 }
