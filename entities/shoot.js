@@ -2,8 +2,12 @@ export function shoot(farmer, bullets, gameScene, shootSound) {
   const bullet = getBullet(bullets);
   if (bullet) {
     const { x, y, rotation } = farmer;
-    bullet.x = x;
-    bullet.y = y;
+
+    // Offset bullet spawn to the front of the gun barrel
+    const barrelOffset = 40; // Distance from center to gun barrel
+    bullet.x = x + Math.cos(rotation) * barrelOffset;
+    bullet.y = y + Math.sin(rotation) * barrelOffset;
+
     bullet.rotation = rotation + Math.PI / 2;
     const speed = 25;
     bullet.vx = Math.cos(rotation) * speed;

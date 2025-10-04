@@ -29,10 +29,11 @@ export function spawnEnemies(
           const enemy = new Enemy(id, enemyType);
           const side = Math.floor(Math.random() * 4); // randomly choose a side (0=top, 1=right, 2=bottom, 3=left)
           const enemySpacing = Math.floor(Math.random() * (app.view.width + app.view.height)) + 500;
-          enemy.speed = enemy.name == "ecorn_bluesm" ? 1 : speed;
-          enemy.speed = enemy.name == "ecorn_limesm" ? 2 : speed;
-          enemy.speed = enemy.name == "ecorn_yellow" ? 3 : speed;
-          enemy.speed = enemy.name == "ecorn_redsm"  ? 4 : speed;
+          // More balanced enemy speeds
+          enemy.speed = enemy.name == "ecorn_bluesm" ? speed * 0.8 : speed;
+          enemy.speed = enemy.name == "ecorn_limesm" ? speed * 1.2 : speed;
+          enemy.speed = enemy.name == "ecorn_yellow" ? speed * 1.6 : speed;
+          enemy.speed = enemy.name == "ecorn_redsm"  ? speed * 2.0 : speed;
 
           setPositionBySide(enemy, side, enemySpacing, farmer, app);
 

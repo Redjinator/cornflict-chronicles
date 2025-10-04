@@ -28,6 +28,24 @@ export default class TitleScreen {
     startButton.buttonMode = true;
     this.titleScene.addChild(startButton);
 
+    // Instructions text
+    const instructionsText = new Text(
+      "CONTROLS:\nWASD - Move  |  Mouse - Aim  |  Click - Shoot\nESC - Pause\n\nSurvive until sunrise!",
+      {
+        fontFamily: "Arial",
+        fontSize: 20,
+        fill: 0xFFFFFF,
+        stroke: 0x000000,
+        strokeThickness: 3,
+        align: "center",
+        lineHeight: 28,
+      }
+    );
+    instructionsText.anchor.set(0.5);
+    instructionsText.x = app.view.width / 2;
+    instructionsText.y = app.view.height - 120;
+    this.titleScene.addChild(instructionsText);
+
     this.titleScene.filters = [godrayFilter];
 
     app.ticker.add((delta) => {

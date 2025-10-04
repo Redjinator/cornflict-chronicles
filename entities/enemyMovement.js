@@ -7,7 +7,9 @@ export function moveEnemies(
   farmer,
   farmerDelta,
   heartsContainer,
-  gameScene
+  gameScene,
+  screenShake,
+  invincibilityState
 ) {
   const redFlash = new PIXI.Graphics();
   redFlash.beginFill(0xff0000);
@@ -38,9 +40,18 @@ export function moveEnemies(
     // Rotate the enemy towards the player
     enemy.rotation = angle + Math.PI * 1.5;
 
-    if (hitTestRectangle(farmer, enemy)) {
+    if (hitTestRectangle(farmer, enemy) && !invincibilityState.isInvincible) {
       playOuchSounds(redFlash);
       farmer.setAnimation("hurt");
+
+      // Trigger screen shake on hit
+      if (screenShake) {
+        screenShake.shake(400, 15);
+      }
+
+      // Activate invincibility
+      invincibilityState.setInvincible();
+
       gameScene.removeChild(enemy);
       enemies.splice(i, 1);
       if (heartsContainer.children.length > 0) {

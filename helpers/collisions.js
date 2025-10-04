@@ -6,16 +6,17 @@ export function hitTestRectangle(r1, r2) {
   hit = false;
 
   //Find the center points of each sprite
-  r1.centerX = r1.x + r1.width / 4;
-  r1.centerY = r1.y + r1.height / 4;
-  r2.centerX = r2.x + r2.width / 2;
-  r2.centerY = r2.y + r2.height / 2;
+  r1.centerX = r1.x;
+  r1.centerY = r1.y;
+  r2.centerX = r2.x;
+  r2.centerY = r2.y;
 
   //Find the half-widths and half-heights of each sprite
-  r1.halfWidth = r1.width / 2;
-  r1.halfHeight = r1.height / 2;
-  r2.halfWidth = r2.width / 2;
-  r2.halfHeight = r2.height / 2;
+  // Reduce hitbox size slightly for more forgiving gameplay
+  r1.halfWidth = r1.width / 2 * 0.6;
+  r1.halfHeight = r1.height / 2 * 0.6;
+  r2.halfWidth = r2.width / 2 * 0.6;
+  r2.halfHeight = r2.height / 2 * 0.6;
 
   //Calculate the distance vector between the sprites
   vx = r1.centerX - r2.centerX;

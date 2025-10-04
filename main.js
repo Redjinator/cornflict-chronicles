@@ -8,8 +8,10 @@ Modified: 2023-03-015
 import Scoreboard from "./scenes/scoreboard.js";
 import TitleScreen from "./scenes/titlescreen.js";
 import GameOver from "./scenes/gameover.js";
+import WinScreen from "./scenes/winscreen.js";
+import PauseScreen from "./scenes/pausescreen.js";
 import Player from "./entities/player.js";
-import { TitleScreenState, PlayState, GameOverState } from "./helpers/stateMachine.js";
+import { TitleScreenState, PlayState, PausedState, GameOverState } from "./helpers/stateMachine.js";
 import { waveConfig } from "./config.js";
 import { Container, Sprite } from "pixi.js";
 import { createHearts } from "./entities/hearts.js";
@@ -21,6 +23,8 @@ import { moveBullets } from "./entities/bulletMovement.js";
 import { shoot } from "./entities/shoot.js";
 import { spawnEnemies } from "./entities/spawn.js";
 import { Timer } from "./helpers/timer.js";
+import { ScreenShake } from "./helpers/screenShake.js";
+import { cullSprites } from "./helpers/spriteculling.js";
 import { rotateTowards } from "./helpers/rotateTowards.js";
 import { setupKeyboard } from "./entities/keyboardMovement.js";
 import { getAnimation } from "./helpers/textureUtils.js";
@@ -45,6 +49,8 @@ let titleScreen,
   gameScene,
   uiScene,
   gameOver,
+  winScreen,
+  pauseScreen,
   farmer,
   groundTexture,
   objectTextures,
@@ -67,6 +73,10 @@ let enemies;
 let currentState = TitleScreenState;
 let isRapidFiring = false;
 let gameStarted = false;
+let screenShake;
+let isInvincible = false;
+let invincibilityTimer = 0;
+const INVINCIBILITY_DURATION = 1500; // 1.5 seconds in milliseconds
 
 // Loader
 loader.onProgress.add(loadProgressHandler);
@@ -100,9 +110,12 @@ function createGameObjects() {
   gameScene = new Container();
   gameScene.visible = false;
 
+  // Initialize screen shake for game scene
+  screenShake = new ScreenShake(gameScene);
+
   uiScene = new Container();
   uiScene.visible = false;
-  
+
   // Create farmer
   farmer = createPlayer();
   gameScene.addChild(farmer);
@@ -114,7 +127,7 @@ function createGameObjects() {
 
   // Create the scoreboard
   scoreboard = new Scoreboard();
-  uiScene.addChild(scoreboard.scoreboard);
+  uiScene.addChild(scoreboard.getContainer());
 
   // Create background
   bgBackground = createBackground(new Sprite(groundTexture).texture, app);
@@ -133,12 +146,19 @@ function createGameObjects() {
   // Create game over screen
   gameOver = new GameOver(app, scoreboard, setup, screenTextures);
 
+  // Create pause screen
+  pauseScreen = new PauseScreen(app, resumeGame);
+  pauseScreen.pauseScene.visible = false;
+  app.stage.addChild(pauseScreen.pauseScene);
+
   // Timer
   createTimerText();
-  timer = new Timer(timerText, endGame, (currentTime) => {
+  timer = new Timer(timerText, () => endGame(true), (currentTime) => {
     const maxAlpha = 0.8; // Max darkness 0 - 1
+    // Calculate elapsed time (how much time has passed)
+    const elapsedTime = timer.startTime - currentTime;
     const alphaIncrement = maxAlpha / timer.startTime;
-    const newAlpha = alphaIncrement * currentTime;
+    const newAlpha = alphaIncrement * elapsedTime;
     dayNightOverlay.alpha = Math.max(0, Math.min(maxAlpha, newAlpha));
   });
 } // ! CREATE GAME OBJECTS END
@@ -175,14 +195,32 @@ export function setup() {
 function gameLoop(delta) {
   if (currentState === PlayState) {
     play(delta);
+
+    // Update invincibility timer
+    if (isInvincible) {
+      invincibilityTimer -= delta * 16.67; // Convert delta to ms (assuming 60fps)
+
+      // Flash effect during invincibility
+      const flashSpeed = 8;
+      farmer.alpha = Math.abs(Math.sin(Date.now() / (1000 / flashSpeed)));
+
+      if (invincibilityTimer <= 0) {
+        isInvincible = false;
+        farmer.alpha = 1; // Reset to fully visible
+      }
+    }
   }
 
+  // Update screen shake
+  if (screenShake) {
+    screenShake.update(delta);
+  }
 
   // Check for 0 hearts (game over)
   if (currentState == PlayState && heartsContainer.children.length == 0) {
     farmer.setAnimation("die");
     app.stage.interactive = false;
-    endGame();
+    endGame(false);
 
     playGameOverMusic();
   }
@@ -211,7 +249,13 @@ function play(delta) {
   updateBG(farmerDelta);
 
   // Movement of Enemies and bullets, and collision detection
-  moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene);
+  moveEnemies(enemies, farmer, farmerDelta, heartsContainer, gameScene, screenShake, {
+    isInvincible,
+    setInvincible: () => {
+      isInvincible = true;
+      invincibilityTimer = INVINCIBILITY_DURATION;
+    }
+  });
   moveBullets(
     bullets,
     enemies,
@@ -223,66 +267,157 @@ function play(delta) {
     farmer
   );
 
-  // Check score for win
-  scoreboard.score >= waveConfig.scoreToWin ? endGame() : null;
+  // Cull off-screen sprites for performance
+  cullSprites(enemies, { width, height });
+  cullSprites(bullets, { width, height });
+
+  // Check score for win (removed - win is only by surviving timer)
 } // ! PLAY END
 
+// * PAUSE GAME START
+function pauseGame() {
+  console.log("pause game");
+
+  // Stop the timer
+  if (timer) {
+    timer.stop();
+  }
+
+  // Pause the music
+  if (music && !music.paused) {
+    music.pause();
+  }
+
+  // Show pause screen
+  pauseScreen.pauseScene.visible = true;
+
+  // Switch to paused state
+  currentState = PausedState;
+} // ! PAUSE GAME END
+
+// * RESUME GAME START
+function resumeGame() {
+  console.log("resume game");
+
+  // Hide pause screen
+  pauseScreen.pauseScene.visible = false;
+
+  // Resume the timer
+  if (timer) {
+    timer.start();
+  }
+
+  // Resume the music
+  if (music && music.paused) {
+    music.play();
+  }
+
+  // Switch back to play state
+  currentState = PlayState;
+} // ! RESUME GAME END
+
 // * END GAME START
-function endGame() {
-  gameOver = new GameOver(app, scoreboard.score, startGame, screenTextures);
-  app.stage.addChild(gameOver.gameOverScene);
-  app.stage.removeChild(gameScene);
+function endGame(isVictory = false) {
+  // Stop the timer
+  if (timer) {
+    timer.stop();
+    timer.reset();
+  }
 
   // Stop the game music
-  music.pause();
-
-  // Reset score
-  scoreboard.resetScore();
-  stateTransition(GameOverState);
+  if (music) {
+    music.pause();
+    music.currentTime = 0;
+  }
 
   // Remove all enemies
-  enemies.forEach((enemy) => gameScene.removeChild(enemy));
+  enemies.forEach((enemy) => {
+    if (enemy.parent) {
+      gameScene.removeChild(enemy);
+    }
+  });
+  enemies.length = 0; // Clear the array
 
   // Remove all bullets
-  bullets.forEach((bullet) => gameScene.removeChild(bullet));
+  bullets.forEach((bullet) => {
+    if (bullet.parent) {
+      gameScene.removeChild(bullet);
+    }
+  });
 
   // Remove farmer from view
   farmer.visible = false;
 
-  // gameover screen
-  gameOver.gameOverScene.visible = true;
+  // Hide game scenes
+  gameScene.visible = false;
+  uiScene.visible = false;
+
+  // Update high score
+  const isNewHighScore = scoreboard.updateHighScore();
+
+  if (isVictory) {
+    // Create and show win screen
+    winScreen = new WinScreen(app, scoreboard.getScore(), restartGame, screenTextures, textTextures, isNewHighScore);
+    app.stage.addChild(winScreen.winScene);
+    winScreen.winScene.visible = true;
+  } else {
+    // Create and show game over screen
+    gameOver = new GameOver(app, scoreboard.getScore(), restartGame, screenTextures, isNewHighScore);
+    app.stage.addChild(gameOver.gameOverScene);
+    gameOver.gameOverScene.visible = true;
+  }
+
+  stateTransition(GameOverState);
 } // ! END GAME END
 
 // * START GAME START
 function startGame() {
-
   gameStarted = true;
   console.log("start game");
-    // Create enemies
-    spawnEnemies(
-      waveConfig.numWaves,
-      waveConfig.waveDelaySec,
-      waveConfig.enemyCount,
-      waveConfig.enemySpeed,
-      gameScene,
-      enemies,
-      ecornsTextures,
-      app,
-      farmer,
-      timer,
-      gameStarted,
-    );
+
+  // Reset invincibility
+  isInvincible = false;
+  invincibilityTimer = 0;
+  farmer.alpha = 1;
 
   // Hide title screen
   titleScreen.titleScene.visible = false;
 
-  // Hide game over screen
-  gameOver.gameOverScene.visible = false;
-
-  // Start a new game
-  if (currentState === GameOverState) {
-    setup();
+  // Hide game over screen if it exists
+  if (gameOver && gameOver.gameOverScene) {
+    gameOver.gameOverScene.visible = false;
   }
+
+  // Hide win screen if it exists
+  if (winScreen && winScreen.winScene) {
+    winScreen.winScene.visible = false;
+  }
+
+  // Show game scenes
+  gameScene.visible = true;
+  uiScene.visible = true;
+
+  // Reset farmer
+  farmer.visible = true;
+  farmer.x = app.view.width / 2;
+  farmer.y = app.view.height / 2;
+  farmer.rotation = 0;
+  farmer.setAnimation("idle");
+
+  // Create enemies
+  spawnEnemies(
+    waveConfig.numWaves,
+    waveConfig.waveDelaySec,
+    waveConfig.enemyCount,
+    waveConfig.enemySpeed,
+    gameScene,
+    enemies,
+    ecornsTextures,
+    app,
+    farmer,
+    timer,
+    gameStarted,
+  );
 
   // Switch to play state
   stateTransition(PlayState);
@@ -290,6 +425,64 @@ function startGame() {
   // Start the timer
   timer.start();
 } // ! START GAME END
+
+// * RESTART GAME START
+function restartGame() {
+  console.log("restart game");
+
+  // Re-enable interactivity
+  app.stage.interactive = true;
+
+  // Stop all audio
+  if (gameOverMusic) {
+    gameOverMusic.pause();
+    gameOverMusic.currentTime = 0;
+    gameOverMusic = null;
+  }
+
+  // Stop win screen victory sound if it exists
+  if (winScreen && winScreen.victorySound) {
+    winScreen.victorySound.pause();
+    winScreen.victorySound.currentTime = 0;
+  }
+
+  // Reset game music
+  if (music) {
+    music.pause();
+    music.currentTime = 0;
+    music.isPlaying = false;
+  }
+
+  // Reset score
+  scoreboard.resetScore();
+
+  // Reset timer
+  timer.reset();
+
+  // Reset day/night overlay
+  dayNightOverlay.alpha = 0;
+
+  // Recreate hearts - remove old container and create fresh one
+  if (heartsContainer && heartsContainer.parent) {
+    uiScene.removeChild(heartsContainer);
+  }
+  heartsContainer = createHearts(app, heartTexture);
+  heartsContainer.position.set(10, 10);
+  uiScene.addChild(heartsContainer);
+
+  // Remove game over screen
+  if (gameOver && gameOver.gameOverScene && gameOver.gameOverScene.parent) {
+    app.stage.removeChild(gameOver.gameOverScene);
+  }
+
+  // Remove win screen
+  if (winScreen && winScreen.winScene && winScreen.winScene.parent) {
+    app.stage.removeChild(winScreen.winScene);
+  }
+
+  // Start a new game
+  startGame();
+} // ! RESTART GAME END
 
 // * STATE TRANSITION START
 function stateTransition(nextState = TitleScreenState) {
@@ -303,7 +496,7 @@ function stateTransition(nextState = TitleScreenState) {
 // *HELPER FUNCTIONS
 //*=========================================================
 function createTimerText() {
-  timerText = new PIXI.Text("Time: 60", {
+  timerText = new PIXI.Text("Time: 90", {
     fontFamily: "Arial",
     fontSize: 36,
     fill: "white",
@@ -317,8 +510,9 @@ function createTimerText() {
     wordWrap: true,
     wordWrapWidth: 440,
   });
-  timerText.position.set(width - 200, height - 700);
-  gameScene.addChild(timerText);
+  timerText.anchor.set(1, 0); // Anchor to top-right
+  timerText.position.set(width - 20, 20); // Better positioning
+  uiScene.addChild(timerText); // Move to UI scene for consistency
 }
 
 // * Event Listeners
@@ -342,6 +536,17 @@ function setupEventListeners() {
   app.view.addEventListener("mouseup", () => {
     farmer.setAnimation("idle");
     isRapidFiring = false;
+  });
+
+  // Pause/Resume with ESC key
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" || event.keyCode === 27) {
+      if (currentState === PlayState) {
+        pauseGame();
+      } else if (currentState === PausedState) {
+        resumeGame();
+      }
+    }
   });
 } // ! Event Listeners
 
@@ -374,6 +579,8 @@ function playGameOverMusic() {
 
 function playMusic() {
   if (!music.isPlaying) {
+    music.loop = true; // Enable looping
+    music.volume = 0.6; // Set volume
     music.play();
     music.isPlaying = true;
   }
@@ -394,7 +601,7 @@ function createDayNightOverlay() {
   dayNightOverlay.beginFill(0x000033);
   dayNightOverlay.drawRect(0, 0, width, height);
   dayNightOverlay.endFill();
-  dayNightOverlay.alpha = 0.8;
+  dayNightOverlay.alpha = 0; // Start at day (0 = full daylight)
   gameScene.addChild(dayNightOverlay);
 }
 

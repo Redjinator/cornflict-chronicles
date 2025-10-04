@@ -14,6 +14,14 @@ export const PlayState = {
   },
 };
 
+export const PausedState = {
+  name: "PausedState",
+  onResume: function (state) {
+    console.log("Resuming game...");
+    state("play");
+  },
+};
+
 export const GameOverState = {
   name: "GameOverState",
   onRestartButtonClick: function (state) {
